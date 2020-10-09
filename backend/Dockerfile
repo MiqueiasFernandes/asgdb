@@ -10,7 +10,7 @@ ENV PYTHONFAULTHANDLER=1 \
 
 # python dependencies
 COPY ./requirements.txt /
-RUN pip install -r ./requirements.txt
+RUN pip install -r ./requirements.txt --use-feature=2020-resolver
 
 # upload scripts
 COPY ./scripts/entrypoint.sh ./scripts/start.sh ./scripts/gunicorn.sh /
