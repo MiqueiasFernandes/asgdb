@@ -1,6 +1,6 @@
 const HOST = "http://localhost"
 const PORT = "8000"
-const URL = `${HOST + ':' + PORT}`
+const URL = '' //`${HOST + ':' + PORT}`
 
 const path = (p, s) => `${p + '/' + s}`
 
