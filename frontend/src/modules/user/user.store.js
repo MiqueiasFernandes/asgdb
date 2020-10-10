@@ -38,7 +38,7 @@ const mutations = {
 const actions = {
 
     addUser(context, payload) {
-        return axios.post(API.API_USER + '/register/', payload)
+        return axios.post(API.API_USER + '/register/', payload, {timeout: 60000 * 5})
             .then(response => {
                 if (response) {
                     if (response.status) {

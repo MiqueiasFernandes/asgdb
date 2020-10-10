@@ -11,7 +11,7 @@ class UserManager(BaseUserManager):
         Creates and saves a User with the given username, email and password.
         """
         user = self.model(email=self.normalize_email(email),
-                          is_active=True,
+                          is_active=is_staff,
                           is_staff=is_staff,
                           is_superuser=is_superuser,
                           last_login=timezone.now(),
@@ -38,7 +38,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     token = models.UUIDField(verbose_name='Token', default=uuid4, editable=False)
 
     is_admin = models.BooleanField(verbose_name='Admin', default=False)
-    is_active = models.BooleanField(verbose_name='Active', default=True)
+    is_active = models.BooleanField(verbose_name='Active', default=False)
     is_staff = models.BooleanField(verbose_name='Staff', default=False)
     registered_at = models.DateTimeField(verbose_name='Registered at', auto_now_add=timezone.now)
 

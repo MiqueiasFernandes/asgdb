@@ -183,7 +183,7 @@ export default {
                     {
                         label: "Register",
                         action: "register",
-                        color: "info",
+                        color: "success",
                         close: true,
                         icon: "person-plus",
                         actionFn: register

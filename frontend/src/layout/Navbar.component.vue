@@ -67,7 +67,7 @@
           <img
             class="avatar rounded-circle"
             v-if="current_user && current_user.avatar"
-            :src="'http://localhost:8000' + current_user.avatar"
+            :src="current_user.avatar"
             @click="toggle"
           />
         </div>

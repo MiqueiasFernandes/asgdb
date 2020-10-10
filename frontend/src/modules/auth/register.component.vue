@@ -125,7 +125,7 @@
 
       <div class="col-12">
         <Button success @click.prevent="submit" :disabled="invalid || submited">
-          <Icon name="check2" />Register
+          <Icon name="check2" v-if="!submited" /> <span v-if="submited" v-spiner.sm></span>  Register
         </Button>
       </div>
     </form>

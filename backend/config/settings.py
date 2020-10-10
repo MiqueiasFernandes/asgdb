@@ -64,8 +64,13 @@ DOMAIN = env.str('DOMAIN')
 
 # EMAIL CONFIGURATION
 # ------------------------------------------------------------------------------
-EMAIL_PORT = env.int('EMAIL_PORT', default='1025')
-EMAIL_HOST = env.str('EMAIL_HOST', default='mailhog')
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env.str('EMAIL_HOST')
+EMAIL_HOST_USER = env.str('EMAIL_USER')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_PASSWORD')
+EMAIL_PORT = env.int('EMAIL_PORT')
+EMAIL_USE_TLS = env.bool('EMAIL_TLS')
+DEFAULT_FROM_EMAIL = 'contato@asgdb.org'
 
 # MANAGER CONFIGURATION
 # ------------------------------------------------------------------------------
@@ -215,7 +220,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication'
     ],
-    'DEFAULT_PERMISSION_CLASSES': [],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAdminUser'
+    ],
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',

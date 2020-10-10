@@ -1,0 +1,5 @@
+Hey, {{ user.name }}!
+
+sua conta foi criada no banco de dados.
+
+To activate your account click {{ DOMAIN }}/#/register?email={{ user.email }}&activate={{ user.token }}

@@ -19,12 +19,10 @@
           </h5>
           <button
             type="button"
-            class="close"
-            data-dismiss="modal"
+            class="btn-close"
+            data-dismiss="alert"
             aria-label="Close"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
+          ></button>
         </div>
         <div class="modal-body" v-if="config">
           <p v-if="config.text">
