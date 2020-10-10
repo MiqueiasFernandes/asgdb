@@ -9,6 +9,7 @@ import Toast from './Toast.component.vue'
 import Dropdown from './Dropdown.component.vue'
 import Pagination from './Pagination.component.vue'
 import ProgressBar from './ProgressBar.component.vue'
+import File from './File.component.vue'
 
 import { FormBuilder, ValidatorCustom, ValidatorRegex } from "../../shared/utils/formBuilder"
 
@@ -53,6 +54,9 @@ export default {
 
         //Icon
         app.component("Icon", Icon)
+
+        //File
+        app.component("File", File)
 
         //Pagination
         app.component("Pagination", Pagination)

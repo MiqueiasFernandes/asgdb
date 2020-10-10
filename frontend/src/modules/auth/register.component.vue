@@ -217,7 +217,10 @@ export default {
               this.running = false;
               break;
             case 400:
-              this.handleError("email not ok");
+              this.handleError("invalid email");
+              break;
+            case 401:
+              this.handleError("invalid filled fields");
               break;
             default:
               this.handleError();

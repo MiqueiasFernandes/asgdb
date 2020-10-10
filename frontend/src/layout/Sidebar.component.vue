@@ -75,6 +75,7 @@ export default {
 
   data: () => ({
     opened: false,
+    showed: false,
     collapses: [],
   }),
 
@@ -99,8 +100,11 @@ export default {
     current_user(user) {
       if (user) {
         this.build();
-        this.open();
-        setTimeout(this.close, 1000);
+        if (!this.showed) {
+          this.open();
+          setTimeout(this.close, 1000);
+          this.showed = true;
+        }
       }
     },
   },
@@ -163,6 +167,8 @@ export default {
         case "Change password":
           this.changepasswd();
           break;
+        case "Change profile":
+          this.$router.push("/update");
       }
     },
 

@@ -2,8 +2,8 @@
   <svg
     ref="svg"
     :class="'bi' + (color ? ' text-' + color : '')"
-    :width="btn ? '20' : size"
-    :height="btn ? '20' : size"
+    :width="btn || sm ? '20' : size"
+    :height="btn || sm ? '20' : size"
     fill="currentColor"
   >
     <use
@@ -31,6 +31,7 @@ export default {
       default: "32",
     },
     btn: Boolean,
+    sm: Boolean,
   },
   mounted() {
     // new this.$bootstrap.Tooltip(this.$refs.svg, {

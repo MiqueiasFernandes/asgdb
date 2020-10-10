@@ -55,6 +55,18 @@ const actions = {
             })
     },
 
+    updateUser(context, payload) {
+        return axios.post(API.API_USER + '/profile_update/', payload, { 
+            headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+            .then(response => {
+                console.log(response)
+                context.commit(types.CURRENT_USER, response.data)
+            })
+    },
+
     activateUser(context, payload) {
         return axios.post(API.API_USER + '/activate/', payload)
             .then(response => {

@@ -1,3 +1,4 @@
+import os
 import requests
 from uuid import uuid4
 
@@ -46,6 +47,22 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK, data=serializer.data)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
+    @action(methods=['POST'], detail=False, permission_classes=[IsAuthenticated])
+    def profile_update(self, request):
+
+        user = request.user
+        user.first_name = request.data.get('first_name', user.first_name)
+        user.last_name = request.data.get('last_name', None)
+        old_avatar = user.avatar.path if user.avatar else None
+        user.avatar = request.FILES['avatar'] if 'avatar' in request.FILES else None
+        user.save()
+
+        if not old_avatar is None:
+            os.remove(old_avatar)
+            
+        serializer = self.serializer_class(user)
+        return Response(status=status.HTTP_200_OK, data=serializer.data)
+
     @action(methods=['POST'], detail=False, permission_classes=[AllowAny])
     def register(self, request):
         last_name = request.data.get('last_name', None)
@@ -54,7 +71,7 @@ class UserViewSet(viewsets.ModelViewSet):
         password = request.data.get('password', None)
 
         if first_name is None or email is None or password is None:
-            return Response({'status': 400})
+            return Response({'status': 401})
 
         if User.objects.filter(email__iexact=email).exists():
             return Response({'status': 210})
@@ -151,9 +168,3 @@ class UserViewSet(viewsets.ModelViewSet):
     def permission(self, request):
         permissions = [p.codename for p in request.user.user_permissions.all()]
         return Response(status=status.HTTP_200_OK, data={'permissions': permissions})
-
-    @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated])
-    def profile(self, request):
-        serializer = self.serializer_class(request.user)
-        return Response(status=status.HTTP_200_OK, data=serializer.data)
-

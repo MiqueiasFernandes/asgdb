@@ -10,6 +10,15 @@ const routes = [
         }
     },
     {
+        path: '/update',
+        name: 'update',
+        component: () => import('./user.update.component.vue'),
+        beforeEnter: (to, from, next) => {
+            console.log('liberar acesso a /update')
+            next()
+        }
+    },
+    {
         // /user/1 => apresenta o user 1
         path: '/user/:userId',
         props: true,
