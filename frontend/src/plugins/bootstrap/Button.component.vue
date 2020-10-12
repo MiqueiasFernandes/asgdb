@@ -1,5 +1,7 @@
 <template>
   <button class="btn" :class="classObj">
+    <Icon :name="ico" btn v-if="ico && !loading"/>
+    <span v-if="loading" v-spiner.sm></span>
     <slot></slot>
   </button>
 </template>
@@ -19,10 +21,19 @@ export default {
       type: Boolean,
       default: false,
     },
+    loading: {
+      type: Boolean,
+      default: false,
+    },
+    link: {
+      type: Boolean,
+      default: false,
+    },
     color: {
       type: String,
       default: "primary",
     },
+    ico: String,
     outline: {
       type: Boolean,
       default: false,
@@ -56,6 +67,8 @@ export default {
         ? "warning"
         : t.danger
         ? "danger"
+        : t.link
+        ? "link"
         : t.color;
       dt["btn" + type + color] = true;
       return dt;

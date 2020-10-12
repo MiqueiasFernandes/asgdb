@@ -1,8 +1,8 @@
 <template>
-  <h1 class="display-7 mb-5">
-    <Icon name="key" class="mr-3" fill />Change password
-  </h1>
   <div v-if="onReset">
+    <h1 class="display-7 mb-5">
+      <Icon name="key" class="mr-3" fill />Change password
+    </h1>
     <form class="row g-3" v-if="running" novalidate>
       <div class="col-md-6">
         <label for="password" class="form-label"
@@ -56,6 +56,9 @@
     </form>
   </div>
   <div v-else>
+    <h1 class="display-7 mb-5">
+      <Icon name="key" class="mr-3" fill />Password
+    </h1>
     <form class="row g-3" v-if="running" novalidate>
       <div class="col-md-6">
         <label for="email" class="form-label">Email</label>
@@ -95,6 +98,8 @@
 </template>
 
 <script>
+import { invalid_email, invalid_password } from "../../shared/utils/validators";
+
 export default {
   data: () => ({
     email: null,
@@ -109,12 +114,8 @@ export default {
       t.$route.query &&
       t.$route.query.token &&
       t.$route.query.token.length > 10,
-    email_invalid: (t) => !t.email || !/^\S+@(\S+\.)+\S{2,}$/.test(t.email),
-    passwd_invalid: (t) =>
-      !t.passwd ||
-      !/\d+/.test(t.passwd) ||
-      !/[a-zA-Z]+/.test(t.passwd) ||
-      t.passwd.length < 4,
+    email_invalid: (t) => invalid_email(t.email),
+    passwd_invalid: (t) => invalid_password(t.passwd),
     cpasswd_invalid: (t) => t.passwd !== t.cpasswd,
     validated: (t) =>
       t.passwd && t.cpasswd && t.passwd.length === t.cpasswd.length,

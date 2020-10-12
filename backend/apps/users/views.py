@@ -53,12 +53,15 @@ class UserViewSet(viewsets.ModelViewSet):
         user = request.user
         user.first_name = request.data.get('first_name', user.first_name)
         user.last_name = request.data.get('last_name', None)
-        old_avatar = user.avatar.path if user.avatar else None
-        user.avatar = request.FILES['avatar'] if 'avatar' in request.FILES else None
+        avatar_changed = request.data.get('avatar_changed', 'false') == 'true'
+        if avatar_changed:
+            old_avatar = user.avatar.path if user.avatar else None
+            user.avatar = request.FILES['avatar'] if 'avatar' in request.FILES else None
+            if not old_avatar is None:
+                os.remove(old_avatar)
+                
+        
         user.save()
-
-        if not old_avatar is None:
-            os.remove(old_avatar)
             
         serializer = self.serializer_class(user)
         return Response(status=status.HTTP_200_OK, data=serializer.data)

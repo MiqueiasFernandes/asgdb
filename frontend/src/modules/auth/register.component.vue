@@ -124,8 +124,14 @@
       </div>
 
       <div class="col-12">
-        <Button success @click.prevent="submit" :disabled="invalid || submited">
-          <Icon name="check2" v-if="!submited" /> <span v-if="submited" v-spiner.sm></span>  Register
+        <Button
+          success
+          ico="check2"
+          @click.prevent="submit"
+          :loading="submited"
+          :disabled="invalid || submited"
+        >
+          Register
         </Button>
       </div>
     </form>
@@ -133,12 +139,12 @@
 </template>
 
 <script>
-const NAME_REGEX =
-  "a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð,.'-";
-const NAME_VAL = new RegExp("^[" + NAME_REGEX + "]{2,}$");
-const SNAME_VAL = new RegExp(
-  "^[" + NAME_REGEX + "]{2,}(\\s[" + NAME_REGEX + "]{2,})*$"
-);
+import {
+  invalid_first_name,
+  invalid_last_name,
+  invalid_email,
+  invalid_password,
+} from "../../shared/utils/validators";
 
 export default {
   data: () => ({
@@ -156,15 +162,11 @@ export default {
   computed: {
     onActivate: (t) =>
       t.$route.query && t.$route.query.email && t.$route.query.activate,
-    fname_invalid: (t) => !t.fname || !NAME_VAL.test(t.fname),
-    lname_invalid: (t) => t.lname && !SNAME_VAL.test(t.lname),
-    email_invalid: (t) => !t.email || !/^\S+@(\S+\.)+\S{2,}$/.test(t.email),
+    fname_invalid: (t) => invalid_first_name(t.fname),
+    lname_invalid: (t) => t.lname && invalid_last_name(t.lname),
+    email_invalid: (t) => invalid_email(t.email),
     cemail_invalid: (t) => t.email !== t.cemail,
-    passwd_invalid: (t) =>
-      !t.passwd ||
-      !/\d+/.test(t.passwd) ||
-      !/[a-zA-Z]+/.test(t.passwd) ||
-      t.passwd.length < 4,
+    passwd_invalid: (t) => invalid_password(t.passwd),
     cpasswd_invalid: (t) => t.passwd !== t.cpasswd,
     validated: (t) => t.fname && t.passwd && t.cpasswd && t.email && t.cemail,
     invalid: (t) =>
@@ -262,9 +264,9 @@ export default {
         "success",
         0,
         () =>
-          this.$router.push(
-            { path: "/login", query: { email: this.$route.query.email } }
-          ).then(() => this.$alert_close(id))
+          this.$router
+            .push({ path: "/login", query: { email: this.$route.query.email } })
+            .then(() => this.$alert_close(id))
       );
     },
 

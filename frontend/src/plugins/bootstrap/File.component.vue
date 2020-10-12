@@ -20,6 +20,10 @@
         <Icon :name="ico ? ico : img ? 'camera' : 'paperclip'" btn />
       </span>
     </label>
+    <Button sm link @click="restore"
+      ><Icon btn name="arrow-clockwise" />reset</Button
+    >
+    <Button sm link @click="remove"><Icon btn name="x" />clear</Button>
   </div>
 </template>
 <script>
@@ -43,24 +47,51 @@ export default {
       default: 1000,
     },
     types: Array,
-    value: String,
+    clear: {
+      type: Boolean,
+      default: true,
+    },
+    reset: {
+      type: Boolean,
+      default: true,
+    },
+    value: {
+      type: String,
+      default: "Choose file...",
+    },
   },
   computed: {
     extension: (t) => (t.types ? t.types : t.img ? ["image/"] : null),
     text: (t) =>
-      t.files && t.files.length > 0
+      t.removed
+        ? "-"
+        : t.files && t.files.length > 0
         ? Array(...t.files)
             .map((f) => f.name)
             .join(", ")
-        : t.value
-        ? t.value
-        : "Choose file...",
+        : t.value,
+    fileWasRemoved: (t) => t.removed,
+    fileWasChanged: (t) => (t.files && t.files.length > 0) || t.removed,
+    selectedFile: (t) => t.validFile([null])[0],
+    selectedFiles: (t) => t.validFile([]),
   },
-  data: () => ({ files: [] }),
+  data: () => ({ files: [], removed: false }),
   methods: {
+    restore() {
+      this.removed = false;
+      this.files = null;
+    },
+
+    remove() {
+      this.files = null;
+      this.$refs.file.files = null;
+      this.removed = true;
+    },
+
     setFile(event) {
       if (event.target && event.target.files) {
         this.files = this.validFile();
+        this.removed = !this.files;
       }
     },
 
