@@ -8,6 +8,7 @@ export const PERM = 'PERM'
 export const getters = {
     status: `${_prefix_}/status`,
     is_verified: `${_prefix_}/is_verified`,
+    is_verified_unauthenticated: `${_prefix_}/is_verified_unauthenticated`,
     is_authenticated: `${_prefix_}/is_authenticated`,
     permissions_loaded: `${_prefix_}/permissions_loaded`,
     has_permission: `${_prefix_}/has_permission`,

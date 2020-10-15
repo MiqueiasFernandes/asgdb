@@ -41,8 +41,7 @@ class UserViewSet(viewsets.ModelViewSet):
         instance.is_active = False
         instance.save()
 
-
-    @action(methods=['GET'], detail=False, permission_classes=[AllowAny])
+    @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated])
     def profile(self, request):
         if request.user.is_authenticated:
             serializer = self.serializer_class(request.user)
@@ -178,5 +177,5 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated])
     def permission(self, request):
-        permissions = [p.codename for p in request.user.user_permissions.all()] + ['USER_LIST']
+        permissions = [p.codename for p in request.user.user_permissions.all()] + ['LOGIN']
         return Response(status=status.HTTP_200_OK, data={'permissions': permissions})

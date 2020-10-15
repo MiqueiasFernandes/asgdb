@@ -1,7 +1,12 @@
 <template>
   <div class="main">
     <Toast global />
-    <Login ref="login" programatic_login @logout="closeSidebar" />
+    <Login
+      v-if="no_login"
+      ref="login"
+      programatic_login
+      @logout="closeSidebar"
+    />
     <Sidebar ref="sidebar" @logout="logout" />
     <Navbar
       ref="navbar"
@@ -28,13 +33,16 @@ import Footer from "./Footer.component";
 import Login from "../modules/auth/Login.component";
 
 export default {
-  title: 'ASGdb.org',
+  title: "ASGdb.org",
   data: () => ({ nav_fixed: false }),
   components: {
     Login,
     Navbar,
     Sidebar,
     Footer,
+  },
+  computed: {
+    no_login: (t) => t.$route.name !== "Login",
   },
   mounted() {
     window.addEventListener("scroll", this.handleScroll);

@@ -90,12 +90,15 @@ export default {
   },
   computed: {
     ...mapGetters({
-      is_authenticated: auth_types.getters.is_authenticated,
+      is_verified_unauthenticated:
+        auth_types.getters.is_verified_unauthenticated,
       current_user: user_types.getters.current_user,
     }),
   },
   mounted() {
-    this.$store.dispatch(user_types.actions.current_user);
+    if (!this.is_verified_unauthenticated) {
+      this.$store.dispatch(user_types.actions.current_user);
+    }
   },
   methods: {
     login() {
