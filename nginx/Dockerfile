@@ -3,10 +3,13 @@ FROM node:10-alpine as build-deps
 
 WORKDIR /app/
 
-COPY frontend/package.json frontend/package-lock.json /app/
+## define frontend dir
+ENV FRONTEND_DIR='webapp'
+
+COPY $FRONTEND_DIR/package.json $FRONTEND_DIR/package-lock.json /app/
 RUN npm install
 
-COPY frontend /app/
+COPY $FRONTEND_DIR /app/
 COPY .env /app/.env
 RUN npm run build
 

@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from apps.users.models import User
 from apps.users.serializers import UserSerializer, UserWriteSerializer
+import time
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -40,7 +41,8 @@ class UserViewSet(viewsets.ModelViewSet):
         instance.is_active = False
         instance.save()
 
-    @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated])
+
+    @action(methods=['GET'], detail=False, permission_classes=[AllowAny])
     def profile(self, request):
         if request.user.is_authenticated:
             serializer = self.serializer_class(request.user)
@@ -144,12 +146,19 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=['POST'], detail=False, permission_classes=[AllowAny])
     def login(self, request, format=None):
+
         email = request.data.get('email', None)
         password = request.data.get('password', None)
-        user = authenticate(username=email, password=password)
+        remember = request.data.get('remember', False)
 
+        user = authenticate(username=email, password=password)
+        
         if user:
             login(request, user)
+
+            if not remember:
+                request.session.set_expiry(0)
+
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -169,5 +178,5 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated])
     def permission(self, request):
-        permissions = [p.codename for p in request.user.user_permissions.all()]
+        permissions = [p.codename for p in request.user.user_permissions.all()] + ['USER_LIST']
         return Response(status=status.HTTP_200_OK, data={'permissions': permissions})
