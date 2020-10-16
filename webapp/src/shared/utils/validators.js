@@ -5,7 +5,7 @@ const SNAME_VAL = new RegExp(
     "^[" + NAME_REGEX + "]{2,}(\\s[" + NAME_REGEX + "]{2,})*$"
 );
 
-const EMAIL_REGEX = new RegExp('^[a-zA-Z0-9_]{2,}@[a-zA-Z0-9_]+.[a-zA-Z0-9_]{2,}$')
+const EMAIL_REGEX = new RegExp(/^[a-zA-Z0-9_]{2,}@[a-zA-Z0-9_]+\.[a-zA-Z0-9_.]{2,}$/)
 const PASSWORD_REGEXS = [/\d+/, /[a-zA-Z]+/, /^.{4,12}$/].map(r => new RegExp(r))
 
 export const valid_first_name = (str) => str && NAME_VAL.test(str)

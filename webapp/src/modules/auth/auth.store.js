@@ -45,6 +45,76 @@ const mutations = {
 
 const actions = {
 
+    async register(context, payload) {
+        return new Promise((resolve, reject) => {
+            axios.post(API.API_USER + '/register/', payload)
+                .then(response => {
+                    if (response.status === 201) {
+                        resolve()
+                    } else if (response.data && response.data.message) {
+                        reject([response.data.message, response.data.severity || 'warning'])
+                    } else {
+                        reject(['Tente novamente mais tarde.', 'danger'])
+                    }
+                }, () => {
+                    reject(['Tente novamente mais tarde.', 'danger'])
+                })
+        });
+    },
+
+    activate(context, payload) {
+        return new Promise((resolve, reject) => {
+            axios.post(API.API_USER + '/activate/', payload)
+                .then(response => {
+                    if (response) {
+                        if (response.status) {
+                            if (response.status === 200) {
+                                return resolve()
+                            }
+                        }
+                    }
+                    reject()
+                },
+                    () => reject()
+                )
+        })
+    },
+
+    reset_password(context, payload) {
+        return new Promise((resolve, reject) => {
+            axios.post(API.API_USER + '/password_reset/', payload)
+                .then(response => {
+                    if (response) {
+                        if (response.status) {
+                            if (response.status === 200) {
+                                return resolve()
+                            }
+                        }
+                    }
+                    reject()
+                },
+                    () => reject())
+        })
+    },
+
+
+    update_password(context, payload) {
+        return new Promise((resolve, reject) => {
+            axios.post(API.API_USER + '/password_change/', payload)
+                .then(response => {
+                    if (response) {
+                        if (response.status) {
+                            if (response.status === 200) {
+                                return resolve()
+                            }
+                        }
+                    }
+                    reject()
+                },
+                    () => reject())
+        })
+    },
+
     async login(context, payload) {
         context.commit(types.AUTH, LoginState.UN_VERIFIED)
         axios.post(API.API_AUTH_LOGIN, payload)

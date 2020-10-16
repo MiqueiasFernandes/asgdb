@@ -70,8 +70,7 @@ import auth_types from "@/modules/auth/auth.store.types";
 import { mapGetters } from "vuex";
 
 export default {
-
-  emits: ['logout'],
+  emits: ["logout"],
 
   computed: {
     ...mapGetters({
@@ -129,7 +128,7 @@ export default {
           {
             id: "btn-2",
             label: "Change profile",
-            icon: "droplet",
+            icon: "gear",
             color: "secondary",
           },
           {
@@ -171,8 +170,10 @@ export default {
           this.changepasswd();
           break;
         case "Change profile":
-          this.$router.push("/update");
+          this.$router.push({ name: "Profile" });
+          break;
       }
+      this.close();
     },
 
     mudar(collapse) {
@@ -210,38 +211,7 @@ export default {
     },
 
     changepasswd() {
-      this.$dialog({
-        title: "Alterar Senha",
-        icon: "key",
-        btns: [
-          {
-            label: "Cancel",
-            color: "secondary",
-            close: true,
-            icon: "x",
-          },
-          {
-            label: "Confirm",
-            close: true,
-            icon: "check",
-            actionFn: () =>
-              this.$store
-                .dispatch("updateUserPasswordEmail", {
-                  email: this.current_user.email,
-                })
-                .then((result) => {
-                  if (result === "OK") {
-                    this.$refs["btn-3"].$el.setAttribute("disabled", true);
-                    this.$alert(
-                      "Instruções para alteração foram enviadas para seu email."
-                    );
-                  } else {
-                    this.$alert("Falhou ao tentar reenviar email.");
-                  }
-                }),
-          },
-        ],
-      });
+      this.$router.push({ name: "Password" });
     },
   },
 };

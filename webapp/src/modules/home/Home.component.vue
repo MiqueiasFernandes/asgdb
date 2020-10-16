@@ -5,48 +5,6 @@
     home view <strong>works!</strong>
   </Display>
 
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
-  <p>
-    teste</p>
  
 </div>
 </template>

@@ -75,10 +75,10 @@ class UserViewSet(viewsets.ModelViewSet):
         password = request.data.get('password', None)
 
         if first_name is None or email is None or password is None:
-            return Response({'status': 401})
+            return Response({'message': 'Os campos first name, email and password são obrigatorios.'})
 
         if User.objects.filter(email__iexact=email).exists():
-            return Response({'status': 210})
+            return Response({'message': 'Este email já está cadastrado.'})
 
         token = uuid4()
 
@@ -91,7 +91,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 recipient_list=[email],
             )
         except:
-            return Response({'status': 400})
+            return Response({'message': f'Erro ao enviar email para {email}.', 'severity': 'danger'})
 
         user = User.objects.create_user(
             email=email,
@@ -106,7 +106,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=['POST'], detail=False, permission_classes=[AllowAny])
     def password_reset(self, request, format=None):
-        if User.objects.filter(email=request.data['email']).exists():
+        if 'email' in request.data and User.objects.filter(email=request.data['email']).exists():
             user = User.objects.get(email=request.data['email'])
             params = {'user': user, 'DOMAIN': settings.DOMAIN}
             send_mail(
@@ -121,7 +121,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=['POST'], detail=False, permission_classes=[AllowAny])
     def password_change(self, request, format=None):
-        if User.objects.filter(token=request.data['token']).exists():
+        if 'token' in request.data and 'password' in  request.data and User.objects.filter(token=request.data['token']).exists():
             user = User.objects.get(token=request.data['token'])
             user.set_password(request.data['password'])
             user.token = uuid4()
@@ -133,7 +133,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(methods=['POST'], detail=False, permission_classes=[AllowAny])
     def activate(self, request, format=None):
 
-        if User.objects.filter(token=request.data['token']).exists():
+        if 'token' in request.data and User.objects.filter(token=request.data['token']).exists():
             user = User.objects.get(token=request.data['token'])
             user.is_active = True
             user.token = uuid4()

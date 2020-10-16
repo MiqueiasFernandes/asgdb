@@ -73,8 +73,8 @@ export default {
 </script>
 <style scoped>
 .btn-icon {
-  width: 1rem;
-  height: 1rem;
+  width: 1.3rem;
+  height: 1.3rem;
 }
 .btn-icon-lg {
   width: 2rem;

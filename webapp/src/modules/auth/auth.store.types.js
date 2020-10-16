@@ -26,6 +26,10 @@ export const actions = {
     login: `${_prefix_}/login`,
     logout: `${_prefix_}/logout`,
     permissions: `${_prefix_}/permissions`,
+    register: `${_prefix_}/register`,
+    activate: `${_prefix_}/activate`,
+    reset_password: `${_prefix_}/reset_password`,
+    update_password: `${_prefix_}/update_password`,
 }
 
 export default {

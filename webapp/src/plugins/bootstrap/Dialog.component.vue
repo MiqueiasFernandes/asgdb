@@ -23,7 +23,7 @@
         </div>
         <div
           class="modal-footer"
-          :class="current.btn_center ? 'justify-content-center' : ''"
+          :class="current.btn_center ? 'justify-content-around' : ''"
         >
           <slot name="footer">
             <Button

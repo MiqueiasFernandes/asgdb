@@ -21,7 +21,7 @@
       <button
         type="button"
         :class="toast.color === 'light' ? '' : 'btn-close-white'"
-        class="btn-close ml-auto mr-2"
+        class="btn-close ml-auto mr-2 fix-multiline"
         data-dismiss="toast"
         aria-label="Close"
       ></button>
@@ -72,10 +72,13 @@ export default {
 </script>
 <style scoped>
 .toasts {
-  width: 15rem;
+  width: 25rem;
   z-index: 100;
   position: fixed;
   top: 6rem;
   right: 8rem;
+}
+.fix-multiline {
+  padding: .4rem;
 }
 </style>

@@ -48,13 +48,6 @@
       </template>
       <template #footer>
         <Button
-          ico="key"
-          secondary
-          v-tooltip="'Forgot password?'"
-          @click="cancel('/password')"
-          :disabled="loading"
-        ></Button>
-        <Button
           ico="person-plus"
           success
           v-tooltip="'Register new user'"
@@ -68,6 +61,13 @@
           :disabled="loading || !valid"
           >Sign in</Button
         >
+        <Button
+          ico="key"
+          secondary
+          v-tooltip="'Forgot password?'"
+          @click="cancel('/password')"
+          :disabled="loading"
+        ></Button>
       </template>
     </Dialog>
     <Display lead :hidden="programatic_login">
@@ -86,6 +86,9 @@ import { mapGetters } from "vuex";
 import { valid_email, valid_password } from "@/shared/utils/validators";
 
 export default {
+  title() {
+    return this.login_mode ? "Login" : this.logout_mode ? "Logout" : null;
+  },
   emits: ["login", "logout"],
   props: {
     programatic_login: Boolean,
@@ -111,6 +114,9 @@ export default {
     destin: (t) => t.$route.query.next || "/",
   },
   mounted() {
+    if (this.$route.query && this.$route.query.email) {
+      this.email = this.$route.query.email;
+    }
     if (this.login_mode && !this.programatic_login) {
       this.show_dialog();
     } else if (this.logout_mode) {
@@ -176,7 +182,7 @@ export default {
       }
     },
     cancel(path) {
-      this.continue_to_route(path, true)
+      this.continue_to_route(path, true);
     },
   },
 };
