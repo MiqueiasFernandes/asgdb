@@ -1,3 +1,5 @@
+import { authenticated_user } from '@/shared/utils/permissions'
+
 const routes = [
     {
         path: '/login',
@@ -22,7 +24,8 @@ const routes = [
     {
         path: '/profile',
         name: 'Profile',
-        component: () => import('./Profile.component.vue')
+        component: () => import('./Profile.component.vue'),
+        beforeEnter: authenticated_user
     }
 ]
 

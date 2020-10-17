@@ -11,17 +11,16 @@ axios.defaults.xsrfCookieName = 'csrftoken'
 axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 axios.defaults.withCredentials = true
 
-import { verify_perm } from '@/shared/utils/permissions'
+import { when_verified } from '@/shared/utils/permissions'
 
 import titleMixin from '@/shared/mixins/titleMixin'
 
 const app = createApp(Main)
     .use(store)
-    .use(router)
     .use(bootstrap)
     .mixin(titleMixin)
 
-verify_perm(['LOGIN'], () => app.mount('#app'))
+when_verified(() => app.use(router).mount('#app'))
 
 console.log('\n\
     █████╗ ███████╗ ██████╗     ██╗██╗    \n\

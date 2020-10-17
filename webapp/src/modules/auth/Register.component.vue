@@ -24,7 +24,7 @@
     <div v-else>
       <form class="row g-3" @submit.prevent="submit">
         <div class="col-md-4">
-          <label for="fname" class="form-label">Name</label>
+          <label for="fname" class="form-label"><strong>Name</strong></label>
           <input
             id="fname"
             class="form-control"
@@ -52,7 +52,7 @@
           />
         </div>
         <div class="col-md-5">
-          <label for="regemail" class="form-label">Email</label>
+          <label for="regemail" class="form-label"><strong>Email</strong></label>
           <input
             id="regemail"
             type="email"
@@ -87,7 +87,7 @@
             class="form-label eye"
             @click="toggle_eye"
           >
-            Password <Icon sm :name="eye_ico" />
+            <strong>Password</strong> <Icon sm :name="eye_ico" />
           </label>
           <input
             id="regpassword"

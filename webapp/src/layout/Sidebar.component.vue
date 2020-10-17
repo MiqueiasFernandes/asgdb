@@ -52,6 +52,7 @@
                 :key="i"
                 @click="handle(button.label)"
                 :ref="button.id"
+                :id="button.id"
                 :ico="button.icon"
                 v-tooltip="button.label"
               >
@@ -194,6 +195,12 @@ export default {
     },
 
     close() {
+      this.collapses.forEach(colapse => {
+        colapse.buttons.forEach(button => {
+          this.$bootstrap.Tooltip.getInstance(document.getElementById(button.id)).hide()
+        })
+      })
+      
       return (this.opened = false);
     },
 

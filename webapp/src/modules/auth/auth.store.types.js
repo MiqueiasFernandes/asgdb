@@ -10,6 +10,7 @@ export const getters = {
     is_verified: `${_prefix_}/is_verified`,
     is_verified_unauthenticated: `${_prefix_}/is_verified_unauthenticated`,
     is_authenticated: `${_prefix_}/is_authenticated`,
+    permissions: `${_prefix_}/permissions`,
     permissions_loaded: `${_prefix_}/permissions_loaded`,
     has_permission: `${_prefix_}/has_permission`,
     has_permissions: `${_prefix_}/has_permissions`
@@ -30,6 +31,7 @@ export const actions = {
     activate: `${_prefix_}/activate`,
     reset_password: `${_prefix_}/reset_password`,
     update_password: `${_prefix_}/update_password`,
+    update_profile: `${_prefix_}/update_profile`,
 }
 
 export default {

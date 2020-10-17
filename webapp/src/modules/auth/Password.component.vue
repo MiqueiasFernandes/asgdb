@@ -93,6 +93,7 @@
 import auth_types from "./auth.store.types";
 import { valid_email, valid_password } from "../../shared/utils/validators";
 export default {
+  title: 'Password',
   computed: {
     mode_change_password: (t) => t.$route.query && t.$route.query.token,
     validate_email: (t) =>

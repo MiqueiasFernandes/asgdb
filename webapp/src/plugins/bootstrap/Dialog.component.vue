@@ -82,7 +82,7 @@ export default {
       title: t.title || (t.queue.length > 0 ? t.queue[0].title : ""),
       ico: t.ico || (t.queue.length > 0 ? t.queue[0].ico : null),
       content: t.content || (t.queue.length > 0 ? t.queue[0].content : ""),
-      actions: t.actions || (t.queue.length > 0 ? t.queue[0].actions : []),
+      actions:  t.queue.length > 0 ? t.queue[0].actions : t.actions,
       center: t.center || (t.queue.length > 0 ? t.queue[0].center : false),
       scrool: t.scrool || (t.queue.length > 0 ? t.queue[0].scrool : false),
       static: t.static || (t.queue.length > 0 ? t.queue[0].static : false),

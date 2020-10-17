@@ -177,5 +177,5 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated])
     def permission(self, request):
-        permissions = [p.codename for p in request.user.user_permissions.all()] + ['LOGIN']
+        permissions = [p.codename for p in request.user.user_permissions.all()] + ['LOGIN', 'apps.user', 'admin.manage', 'teste', 'apps.gene']
         return Response(status=status.HTTP_200_OK, data={'permissions': permissions})

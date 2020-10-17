@@ -4,33 +4,49 @@
       type="file"
       class="form-file-input"
       id="fileInput"
-      :disabled="disable"
+      :disabled="disabled"
       :multiple="max > 1"
       ref="file"
       v-on:change="setFile"
     />
     <label class="form-file-label" for="fileInput">
       <span class="form-file-text">
-        <span v-if="files && files.length > 1" v-badge:secondary.rounded>
+        <Badge v-if="files && files.length > 1" secondary round>
           {{ files.length }}
-        </span>
+        </Badge>
         {{ text }}</span
       >
       <span class="form-file-button">
-        <Icon :name="ico ? ico : img ? 'camera' : 'paperclip'" btn />
+        <Icon :name="ico ? ico : img ? 'camera' : 'paperclip'" sm />
       </span>
     </label>
-    <Button sm link @click="restore"
-      ><Icon btn name="arrow-clockwise" />reset</Button
+    <Button
+      type="button"
+      sm
+      color="none"
+      class="mt-1"
+      @click="restore"
+      ico="arrow-clockwise"
+      :disabled="!fileWasChanged"
+      >reset</Button
     >
-    <Button sm link @click="remove"><Icon btn name="x" />clear</Button>
+    <Button
+      type="button"
+      sm
+      color="none"
+      class="mt-1"
+      @click="remove"
+      ico="x"
+      v-if="clear"
+      >clear</Button
+    >
   </div>
 </template>
 <script>
 export default {
   emits: ["files"],
   props: {
-    disable: Boolean,
+    disabled: Boolean,
     lg: Boolean,
     img: Boolean,
     ico: String,
@@ -48,10 +64,6 @@ export default {
     },
     types: Array,
     clear: {
-      type: Boolean,
-      default: true,
-    },
-    reset: {
       type: Boolean,
       default: true,
     },
@@ -79,12 +91,13 @@ export default {
   methods: {
     restore() {
       this.removed = false;
+      this.resetInput();
       this.files = null;
     },
 
     remove() {
       this.files = null;
-      this.$refs.file.files = null;
+      this.resetInput();
       this.removed = true;
     },
 
@@ -101,11 +114,12 @@ export default {
         return or;
       }
       if (files.length < this.min) {
+        this.resetInput();
         alert("selecione no minimo " + this.min + " arquivo");
         return or;
       }
       if (files.length > this.max) {
-        this.$refs.file.value = null;
+        this.resetInput();
         alert("selecione no maximo " + this.max + " arquivo");
         return or;
       }
@@ -137,12 +151,17 @@ export default {
       });
 
       if (reset) {
-        this.$refs.file.value = null;
+        this.resetInput();
       } else {
         this.$emit("files", files);
         return files;
       }
       return or;
+    },
+
+    resetInput() {
+      this.$refs.file.files = null;
+      this.$refs.file.value = null;
     },
   },
 };

@@ -19,6 +19,7 @@ const getters = {
     is_verified: state => state.auth !== LoginState.UN_VERIFIED,
     is_verified_unauthenticated: state => state.auth === LoginState.UN_AUTHENTICATED,
     is_authenticated: state => state.auth === LoginState.AUTHENTICATED,
+    permissions: state => state.permissions,
     permissions_loaded: state => state.permissions.length > 0,
     has_permission: state => (permission) => state.permissions.includes(permission),
     has_permissions: state => (permissions) => permissions.every(p => state.permissions.includes(p))
@@ -97,7 +98,6 @@ const actions = {
         })
     },
 
-
     update_password(context, payload) {
         return new Promise((resolve, reject) => {
             axios.post(API.API_USER + '/password_change/', payload)
@@ -140,6 +140,19 @@ const actions = {
                     context.commit(types.PERM, []);
                     reject()
                 })
+        })
+    },
+
+    update_profile(context, payload) {
+        return new Promise((resolve, reject) => {
+            axios.post(API.API_USER + '/profile_update/', payload, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }).then(response => {
+                context.commit(user_types.mutations.CURRENT_USER, response.data, { root: true });
+                resolve(response.data)
+            }, reject)
         })
     },
 

@@ -3,7 +3,6 @@ import auth_types from '@/modules/auth/auth.store.types'
 
 
 export const verify_perm = (perms, router, route = '/') => {
-
     const unauthorized = () => router({ name: 'Unauthorized', query: { reason: route } })
     const authorized = () => router()
     const unveryfied = () => router({ name: 'Login', query: { next: route } })
@@ -25,4 +24,10 @@ export const verify_perm = (perms, router, route = '/') => {
             .then(verify_if_has_permissions)
             .catch(unveryfied)
     }
+}
+
+export const when_verified = (process) => verify_perm(['LOGIN'], process)
+
+export const authenticated_user = (to, from, next) => {
+    verify_perm(['LOGIN'], next, to.path)
 }

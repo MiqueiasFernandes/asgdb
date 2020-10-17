@@ -51,7 +51,7 @@
           ico="person-plus"
           success
           v-tooltip="'Register new user'"
-          @click="cancel('/register')"
+          @click="continue_to_route('/register')"
           :disabled="loading"
         ></Button>
         <Button
@@ -65,7 +65,7 @@
           ico="key"
           secondary
           v-tooltip="'Forgot password?'"
-          @click="cancel('/password')"
+          @click="continue_to_route('/password')"
           :disabled="loading"
         ></Button>
       </template>
@@ -118,12 +118,12 @@ export default {
       this.email = this.$route.query.email;
     }
     if (this.login_mode && !this.programatic_login) {
+      if (this.is_authenticated) {
+        return this.continue_to_route(this.destin);
+      }
       this.show_dialog();
     } else if (this.logout_mode) {
-      this.$store.dispatch(auth_types.actions.logout).then(() => {
-        this.continue_to_route("/");
-        this.$emit("logout");
-      });
+      this.$store.dispatch(auth_types.actions.logout).then(this.logout);
     }
   },
   watch: {
@@ -135,8 +135,8 @@ export default {
         if (this.is_authenticated) {
           this.submited = false;
           this.loading = false;
-          this.continue_to_route(this.destin);
           this.$emit("login");
+          this.continue_to_route(this.destin);
         } else if (this.submited) {
           this.auth_error();
           this.submited = false;
@@ -151,6 +151,7 @@ export default {
     logout() {
       return this.$store
         .dispatch(auth_types.actions.logout)
+        .then(() => this.continue_to_route("/"))
         .then(() => this.$emit("logout"));
     },
     show_dialog() {
@@ -173,16 +174,14 @@ export default {
       this.password = null;
       this.error = true;
     },
-    continue_to_route(path, cancel) {
+    hide_dialog() {
       if (this.$refs.dialog) {
         this.$refs.dialog.hide();
       }
-      if (!this.programatic_login || cancel) {
-        this.$router.push(path);
-      }
     },
-    cancel(path) {
-      this.continue_to_route(path, true);
+    continue_to_route(path) {
+      this.hide_dialog();
+      this.$router.push(path);
     },
   },
 };
