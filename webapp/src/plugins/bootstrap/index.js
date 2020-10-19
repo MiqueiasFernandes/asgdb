@@ -16,7 +16,6 @@ import ProgressBar from './ProgressBar.component.vue'
 import File from './File.component.vue'
 
 // install: npm i bootstrap@next bootstrap-icons
-// icons:   cp node_modules/bootstrap-icons/bootstrap-icons.svg src/assets/
 // usage:   main.js => `.use(boostrap)`
 // App-Main.vue => `` <Dialog global/>
 //                    <Toast global/>  ``
@@ -32,11 +31,11 @@ import File from './File.component.vue'
 // Card         CSS
 // Carousel      X
 // Close button CSS
-// Collapse     --- (complexo)
+// Collapse     CSS
 // Dropdowns    OK
 // List group   CSS
 // Modal        OK
-// Navs         --- (complexo)
+// Navs         CSS
 // Navbar       OK
 // Pagination   OK
 // Popovers     OK

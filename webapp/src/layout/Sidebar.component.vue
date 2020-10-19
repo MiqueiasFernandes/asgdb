@@ -77,6 +77,7 @@ export default {
     ...mapGetters({
       is_authenticated: auth_types.getters.is_authenticated,
       is_admin: auth_types.getters.is_admin,
+      permissions: auth_types.getters.permissions,
       current_user: user_types.getters.current_user,
     }),
   },
@@ -92,11 +93,12 @@ export default {
         this.close();
       }
     },
-    current_user(user) {
-      if (user) {
-        this.build();
-        setTimeout(() => this.mudar(this.collapses[0]), 800);
-      }
+    current_user() {
+      this.load();
+    },
+
+    permissions() {
+      this.load();
     },
   },
 
@@ -133,6 +135,13 @@ export default {
       let collapse = this.as_collapse("Administration");
       collapse.buttons.push(this.as_button("Users", "people", this.act_users));
       return collapse;
+    },
+
+    load() {
+      if (this.current_user) {
+        this.build();
+        setTimeout(() => this.mudar(this.collapses[0]), 800);
+      }
     },
 
     build() {

@@ -40,6 +40,10 @@ export const list = (endpoint, query) => {
     )
 }
 
+export const get = (endpoint, id) => {
+    return axios.get(`${endpoint}/${id}`)
+}
+
 
 export default {
     API_AUTH_LOGIN,

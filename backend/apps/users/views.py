@@ -16,6 +16,8 @@ from apps.users.models import User
 from apps.users.serializers import UserSerializer, UserWriteSerializer
 import time
 
+from apps.users.permissions import ListPermision
+
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -152,10 +154,10 @@ class UserViewSet(viewsets.ModelViewSet):
         remember = request.data.get('remember', False)
         remove = request.data.get('remove', False)
 
-        user = User.objects.get(email=request.data['email'])
+        user = User.objects.filter(email__iexact=email)
 
-        if user:
-
+        if user.exists():
+            user = user[0]
             if user and not user.is_active:
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
 
@@ -208,15 +210,14 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({'active': cont})
 
 
-    # def get_permissions(self):
-    #     """
-    #     Instantiates and returns the list of permissions that this view requires.
-    #     """
-    #     if self.action == 'list':
-    #         permission_classes = [IsAuthenticated]
-    #     else:
-    #         permission_classes = [IsAdmin]
-    #     return [permission() for permission in permission_classes]
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        print('PERM', self.action)
+        permissions = [AllowAny]
+        if self.action == 'list': permissions = [ListPermision]
+        return [permission() for permission in permissions]
 
     # PERMISSIONS: https://www.django-rest-framework.org/api-guide/viewsets/#viewset-actions
     #  Create => create
