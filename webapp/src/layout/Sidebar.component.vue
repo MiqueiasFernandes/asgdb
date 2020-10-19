@@ -50,7 +50,7 @@
                 :color="button.color"
                 v-for="(button, i) in collapse.buttons"
                 :key="i"
-                @click="handle(button.label)"
+                @click="button.action()"
                 :ref="button.id"
                 :id="button.id"
                 :ico="button.icon"
@@ -76,22 +76,15 @@ export default {
   computed: {
     ...mapGetters({
       is_authenticated: auth_types.getters.is_authenticated,
+      is_admin: auth_types.getters.is_admin,
       current_user: user_types.getters.current_user,
     }),
   },
 
   data: () => ({
     opened: false,
-    showed: false,
     collapses: [],
   }),
-
-  mounted() {
-    this.close();
-    if (this.collapses.length > 0) {
-      this.mudar(this.collapses[0]);
-    }
-  },
 
   watch: {
     is_authenticated(auth_state) {
@@ -102,88 +95,79 @@ export default {
     current_user(user) {
       if (user) {
         this.build();
-        if (!this.showed) {
-          this.open();
-          setTimeout(this.close, 1000);
-          this.showed = true;
-        }
+        setTimeout(() => this.mudar(this.collapses[0]), 800);
       }
     },
   },
 
   methods: {
+    as_button(label, icon, action, color, id) {
+      return {
+        id: id || label.split(" ").join("-"),
+        label,
+        action,
+        icon,
+        color: color || "primary",
+      };
+    },
+
+    as_collapse(title, text, id) {
+      return { title, text, id: id || title.split(" ").join("-"), buttons: [] };
+    },
+
+    collapse_user() {
+      let collapse = this.as_collapse("Profie");
+      collapse.buttons.push(
+        this.as_button("Logout", "power", this.act_logout, "warning")
+      );
+      collapse.buttons.push(
+        this.as_button("Change profile", "gear", this.act_change, "secondary")
+      );
+      collapse.buttons.push(
+        this.as_button("Change password", "key", this.act_pwd, "danger")
+      );
+      return collapse;
+    },
+
+    colapse_admin() {
+      let collapse = this.as_collapse("Administration");
+      collapse.buttons.push(this.as_button("Users", "people", this.act_users));
+      return collapse;
+    },
+
     build() {
       // for default user
       const collapses = [];
-      collapses.push({
-        title: "Profie",
-        text: null,
-        id: "profile",
-        buttons: [
-          {
-            id: "btn-1",
-            label: "Logout",
-            icon: "power",
-            color: "warning",
-          },
-          {
-            id: "btn-2",
-            label: "Change profile",
-            icon: "gear",
-            color: "secondary",
-          },
-          {
-            id: "btn-3",
-            label: "Change password",
-            icon: "key",
-            color: "danger",
-          },
-        ],
-      });
-
+      collapses.push(this.collapse_user());
+      if (this.is_admin) {
+        collapses.push(this.colapse_admin());
+      }
       this.collapses = collapses;
     },
 
-    openFirst() {
-      setTimeout(() => {
-        this.collapses[0].collapse.show();
-        this.collapses[0].open = true;
-      }, 600);
-    },
-
-    hideAll() {
+    init() {
       this.collapses.forEach((c) => {
-        c.open = false;
-        if (!c.collapse) {
-          const el = this.$refs[c.id];
-          c.collapse = new this.$bootstrap.Collapse(el);
+        true;
+        if (!c.instance) {
+          c.open = !!(c.instance = new this.$bootstrap.Collapse(
+            this.$refs[c.id]
+          ));
         }
-        c.collapse.hide();
+        c.instance.hide();
+        c.open = false;
       });
     },
 
-    handle(label) {
-      switch (label) {
-        case "Logout":
-          this.logout();
-          break;
-        case "Change password":
-          this.changepasswd();
-          break;
-        case "Change profile":
-          this.$router.push({ name: "Profile" });
-          break;
-      }
-      this.close();
-    },
-
     mudar(collapse) {
-      this.hideAll();
+      this.init();
       collapse.open =
         "true" ===
         this.$refs[collapse.id + "-btn"].getAttribute("aria-expanded");
       if (!collapse.open) {
-        this.openFirst();
+        setTimeout(() => {
+          this.collapses[0].instance.show();
+          this.collapses[0].open = true;
+        }, 800);
       }
     },
 
@@ -195,12 +179,14 @@ export default {
     },
 
     close() {
-      this.collapses.forEach(colapse => {
-        colapse.buttons.forEach(button => {
-          this.$bootstrap.Tooltip.getInstance(document.getElementById(button.id)).hide()
-        })
-      })
-      
+      this.collapses.forEach((colapse) => {
+        colapse.buttons.forEach((button) => {
+          this.$bootstrap.Tooltip.getInstance(
+            document.getElementById(button.id)
+          ).hide();
+        });
+      });
+
       return (this.opened = false);
     },
 
@@ -213,12 +199,24 @@ export default {
       return this.opened;
     },
 
-    logout() {
+    act_logout() {
       this.$emit("logout");
+      this.close();
     },
 
-    changepasswd() {
+    act_change() {
+      this.$router.push({ name: "Profile" });
+      this.close();
+    },
+
+    act_pwd() {
       this.$router.push({ name: "Password" });
+      this.close();
+    },
+
+    act_users() {
+      this.$router.push({ name: "User" });
+      this.close();
     },
   },
 };

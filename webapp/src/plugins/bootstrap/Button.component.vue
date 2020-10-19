@@ -2,7 +2,7 @@
   <button :class="classObj" :disabled="disabled">
     <span class="d-flex align-items-center" ref="content">
       <Icon
-        :class="[lg ? 'btn-icon-lg' : 'btn-icon', has_content ? 'mr-1' : '']"
+        :class="[lg ? 'btn-icon-lg' : sm ? 'btn-icon-sm' : 'btn-icon', has_content ? 'mr-1' : '']"
         :name="ico"
         :sm="sm"
         v-if="ico && !loading"
@@ -75,6 +75,10 @@ export default {
 .btn-icon {
   width: 1.3rem;
   height: 1.3rem;
+}
+.btn-icon-sm {
+  width: 1rem;
+  height: 1rem;
 }
 .btn-icon-lg {
   width: 2rem;

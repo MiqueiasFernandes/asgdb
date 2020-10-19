@@ -169,6 +169,7 @@ export default {
 
     error() {
       this.loading = false;
+      this.disable_form = false;
       this.$refs.alert.show();
     },
   },

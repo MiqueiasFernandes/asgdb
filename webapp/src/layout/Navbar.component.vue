@@ -42,7 +42,7 @@
               <Icon name="house" sm fill /> <strong>Home</strong>
             </router-link>
           </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <router-link
               to="/user"
               class="nav-link d-flex align-items-center lead"
@@ -50,7 +50,7 @@
             >
               <Icon name="people" sm fill /> <strong>Users</strong>
             </router-link>
-          </li>
+          </li> -->
         </ul>
         <div class="d-flex justify-content-evenly">
           <div class="input-group mr-3" style="width: 20rem">

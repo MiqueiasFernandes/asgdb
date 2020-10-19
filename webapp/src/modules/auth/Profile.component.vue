@@ -84,10 +84,10 @@
         >
         <Button
           danger
-          class="float-right"
-          ico="trash"
+          class="float-right remove"
+          ico="person-x"
           type="button"
-          :loading="loading"
+          :loading="loading_remove"
           :disabled="disable_form"
           @click="remove_account"
           >Remove account</Button
@@ -118,7 +118,7 @@ export default {
       !t.avatar || t.avatar === "/staticfiles/images/default_avatar.png"
         ? "Choose avatar ..."
         : t.avatar.split("/")[3],
-    disable_form: (t) => !t.current_user || t.loading,
+    disable_form: (t) => !t.current_user || t.loading || t.loading_remove,
     valid_fname: (t) => valid_first_name(t.fname),
     valid_lname: (t) => valid_last_name(t.lname),
     valid_form: (t) => t.valid_fname && t.valid_lname,
@@ -134,6 +134,8 @@ export default {
     email: null,
     avatar: null,
     loading: false,
+    loading_remove: false,
+    erros: 0,
   }),
   watch: {
     current_user(user) {
@@ -175,10 +177,11 @@ export default {
     },
     onError() {
       this.loading = false;
+      this.loading_remove = false;
       this.$refs.alert.show();
     },
     p2c(p) {
-      if (p.startsWith("admin")) {
+      if (p.startsWith("ADMIN")) {
         return "info";
       }
       if (p.startsWith("apps")) {
@@ -188,20 +191,66 @@ export default {
     },
     remove_account() {
       this.$dialog({
-        title: "Remove accoutn",
+        title: "Remove account",
         ico: "trash",
-        content: "Tem certeza que desenja remover?",
+        content:
+          "All of your data will be deleted. Are you sure to remove your account?",
         actions: [
-          { label: "Remove", ico: "check2", color: "danger", click: this.remove_yes },
-          { label: "Mantem", ico: "x", color: "success", click: () => true },
+          {
+            label: "Remove",
+            ico: "x",
+            color: "danger",
+            click: this.remove_yes,
+          },
+          {
+            label: "Continue",
+            ico: "check2",
+            color: "success",
+            click: () => true,
+          },
+        ],
+        focus: "Password",
+        form: [
+          {
+            label: "Password",
+            type: "password",
+            value: "",
+          },
         ],
       });
     },
 
-    remove_yes() {
-      console.log("remove agora");
+    remove_yes(form) {
+      this.loading_remove = true;
+      this.$refs.alert.hide();
+      this.$store
+        .dispatch(auth_types.actions.login, {
+          email: this.email,
+          password: form.Password,
+          remember: false,
+          remove: true,
+        })
+        .then(this.removed)
+        .catch(() => {
+          this.onError();
+          if (++this.erros > 3) {
+            this.$router.push({ name: "Logout" });
+            window.location.reload(true);
+          }
+        });
       return true;
+    },
+
+    removed() {
+      this.loading_remove = false;
+      this.$toast("Profile was removed!", "Bye bye!", "danger", 8);
+      this.$router.push({ name: "Logout" });
     },
   },
 };
 </script>
+<style scoped>
+.remove {
+  opacity: 0.5;
+}
+</style>

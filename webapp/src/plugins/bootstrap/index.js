@@ -1,5 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css"
 import bootstrap from "bootstrap/dist/js/bootstrap.bundle.js"
+import axios from 'axios'
 
 import Icon from './Icon.component.vue'
 import Button from './Button.component.vue'
@@ -59,6 +60,26 @@ export default {
 
         //Icon
         app.component("Icon", Icon)
+        const icons_href = require('bootstrap-icons/bootstrap-icons.svg')
+        app.config.globalProperties.$bootstrap_icons = new Promise((resolve, reject) => {
+            const p = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+            const s = '</svg>'
+            axios.get(icons_href)
+                .then(resp => {
+                    const icons = resp.data
+                        .slice(0, -6)
+                        .split('<symbol ')
+                        .splice(1)
+                        .map(i => p + i.slice(0, -9) + s)
+                        .map(i => ({ x: i.split('id="')[1].split('"')[0], v: i }))
+                        .reduce(
+                            (o, key) => ({ ...o, [key.x]: key.v }),
+                            {}
+                        )
+                    resolve(icons)
+                })
+                .catch(reject)
+        })
 
         //Button
         app.component("Button", Button)

@@ -59,7 +59,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def short_name(self):
-        return f'{self.last_name} {self.first_name[0]}.'
+        return f'{self.last_name}, {self.first_name[0]}.'
     short_name.fget.short_description = 'Short name'
 
     def get_full_name(self):

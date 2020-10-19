@@ -1,20 +1,11 @@
 <template>
   <svg
-    ref="svg"
+    :innerHTML="icon"
     :class="color ? ['bi', 'text-' + color] : 'bi'"
     :width="sm ? '20' : lg ? '38' : size"
     :height="sm ? '20' : lg ? '38' : size"
     fill="currentColor"
-  >
-    <use
-      :xlink:href="
-        require('@/assets/bootstrap-icons.svg') +
-        '#' +
-        name +
-        (fill ? '-fill' : '')
-      "
-    />
-  </svg>
+  ></svg>
 </template>
 
 <script>
@@ -33,6 +24,12 @@ export default {
     },
     sm: Boolean,
     lg: Boolean,
+  },
+  data: () => ({ icon: "" }),
+  beforeMount() {
+    this.$bootstrap_icons.then(
+      (icons) => (this.icon = icons[`${this.name}${this.fill ? "-fill" : ""}`])
+    );
   },
 };
 </script>

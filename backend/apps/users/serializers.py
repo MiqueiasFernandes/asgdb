@@ -7,10 +7,10 @@ from apps.users.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     registered_at = serializers.DateTimeField(format='%H:%M %d.%m.%Y', read_only=True)
-
     avatar = serializers.SerializerMethodField(read_only=True)
     full_name = serializers.SerializerMethodField(read_only=True)
     short_name = serializers.SerializerMethodField(read_only=True)
+    permissions = serializers.SerializerMethodField(read_only=True)
 
     def get_avatar(self, obj):
         return obj.avatar.url if obj.avatar else settings.STATIC_URL + 'images/default_avatar.png'
@@ -21,9 +21,14 @@ class UserSerializer(serializers.ModelSerializer):
     def get_short_name(self, obj):
         return obj.short_name
 
+    def get_permissions(self, obj):
+        permissions = [p.codename for p in obj.user_permissions.all()] + ['USER']
+        if obj.is_staff: permissions.append('ADMIN')
+        return permissions
+
     class Meta:
         model = User
-        fields = ['email', 'avatar', 'first_name', 'last_name', 'full_name', 'short_name', 'registered_at']
+        fields = ['email', 'permissions', 'id', 'avatar', 'is_active', 'first_name', 'last_name', 'full_name', 'short_name', 'registered_at']
 
 
 class UserWriteSerializer(serializers.ModelSerializer):

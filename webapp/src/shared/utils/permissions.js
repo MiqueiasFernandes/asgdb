@@ -26,8 +26,12 @@ export const verify_perm = (perms, router, route = '/') => {
     }
 }
 
-export const when_verified = (process) => verify_perm(['LOGIN'], process)
+export const when_verified = (process) => verify_perm(['USER'], process)
 
 export const authenticated_user = (to, from, next) => {
-    verify_perm(['LOGIN'], next, to.path)
+    verify_perm(['USER'], next, to.path)
+}
+
+export const authenticated_admin = (to, from, next) => {
+    verify_perm(['ADMIN'], next, to.path)
 }

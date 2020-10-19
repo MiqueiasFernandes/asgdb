@@ -8,21 +8,20 @@
         :class="{ active: page.current }"
         :aria-current="page.current ? 'page' : ''"
       >
-        <span class="page-link" v-if="page.current">
+        <a class="page-link active" v-if="page.current" href="#">
           {{ page.label }}
           <!-- <span class="visually-hidden">(current)</span> -->
-        </span>
-        <span v-else
-          ><a class="page-link" @click="$emit('page', page.label)">{{
+        </a>
+        <a v-else  class="page-link" @click.prevent="$emit('page', page.label)"  href="#">{{
             page.label
-          }}</a></span
-        >
+          }}</a>
       </li>
     </ul>
   </nav>
 </template>
 <script>
 export default {
+  emits: ['page'],
   props: {
     pages: Number,
     current: Number,

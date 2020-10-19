@@ -90,8 +90,8 @@ class UserViewSet(viewsets.ModelViewSet):
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[email],
             )
-        except:
-            return Response({'message': f'Erro ao enviar email para {email}.', 'severity': 'danger'})
+        except Exception as e:
+            return Response({'message': f'Erro ao enviar email para {email}. {e}', 'severity': 'danger'})
 
         user = User.objects.create_user(
             email=email,
@@ -124,6 +124,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if 'token' in request.data and 'password' in  request.data and User.objects.filter(token=request.data['token']).exists():
             user = User.objects.get(token=request.data['token'])
             user.set_password(request.data['password'])
+            user.is_active = True
             user.token = uuid4()
             user.save()
             return Response(status=status.HTTP_200_OK)
@@ -149,16 +150,26 @@ class UserViewSet(viewsets.ModelViewSet):
         email = request.data.get('email', None)
         password = request.data.get('password', None)
         remember = request.data.get('remember', False)
+        remove = request.data.get('remove', False)
 
-        user = authenticate(username=email, password=password)
-        
+        user = User.objects.get(email=request.data['email'])
+
         if user:
-            login(request, user)
 
-            if not remember:
-                request.session.set_expiry(0)
+            if user and not user.is_active:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-            return Response(status=status.HTTP_200_OK)
+            user = authenticate(username=email, password=password)
+
+            if user:
+                login(request, user)
+
+                if not remember:
+                    request.session.set_expiry(0)
+                    if remove and not self.remove_user(user):
+                        Response(status=status.HTTP_404_NOT_FOUND)
+
+                return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(methods=['POST'], detail=False) ## access restrict to default: `IsAdminUser`
@@ -177,5 +188,39 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated])
     def permission(self, request):
-        permissions = [p.codename for p in request.user.user_permissions.all()] + ['LOGIN', 'apps.user', 'admin.manage', 'teste', 'apps.gene']
+        permissions = [p.codename for p in request.user.user_permissions.all()] + ['USER']
+        if request.user.is_staff: permissions.append('ADMIN')
         return Response(status=status.HTTP_200_OK, data={'permissions': permissions})
+
+    def remove_user(self, user):
+        print('REMOVED USER', user, user.email)
+        try:
+            if user.avatar:
+                os.remove(user.avatar.path)
+            user.delete()
+            return True
+        except:
+            return False
+
+    @action(methods=['GET'], detail=False)
+    def count(self, request):
+        cont = User.objects.filter(is_active=True).count()
+        return Response({'active': cont})
+
+
+    # def get_permissions(self):
+    #     """
+    #     Instantiates and returns the list of permissions that this view requires.
+    #     """
+    #     if self.action == 'list':
+    #         permission_classes = [IsAuthenticated]
+    #     else:
+    #         permission_classes = [IsAdmin]
+    #     return [permission() for permission in permission_classes]
+
+    # PERMISSIONS: https://www.django-rest-framework.org/api-guide/viewsets/#viewset-actions
+    #  Create => create
+    #  View   => retrieve
+    #  List   => list
+    #  Update => update, partial_update
+    #  Remove => destroy

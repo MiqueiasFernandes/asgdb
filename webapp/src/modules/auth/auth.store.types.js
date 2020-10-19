@@ -10,6 +10,7 @@ export const getters = {
     is_verified: `${_prefix_}/is_verified`,
     is_verified_unauthenticated: `${_prefix_}/is_verified_unauthenticated`,
     is_authenticated: `${_prefix_}/is_authenticated`,
+    is_admin: `${_prefix_}/is_admin`,
     permissions: `${_prefix_}/permissions`,
     permissions_loaded: `${_prefix_}/permissions_loaded`,
     has_permission: `${_prefix_}/has_permission`,

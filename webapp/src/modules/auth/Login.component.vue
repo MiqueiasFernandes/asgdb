@@ -1,12 +1,24 @@
 <template>
   <div v-if="login_mode">
-    <Dialog sm static btn_center ref="dialog">
+    <Dialog
+      sm
+      static
+      btn_center
+      ref="dialog"
+      :focus="email ? 'password' : 'email'"
+    >
       <template #header> <Icon name="lock" />Login </template>
       <template #body>
-        <Display class="text-danger" v-if="error" lead
+        <Display class="text-danger" v-if="error && !activate" lead
           >Login ou senha <strong>incorreto</strong>.</Display
         >
-        <div class="mb-3">
+        <Display class="text-secondary" v-if="activate" lead>
+          You need <strong>activate your account</strong> with email first to
+          login. <br />
+          If you lost your activation email, change your password to activate
+          your account.
+        </Display>
+        <div class="mb-3" v-if="!activate">
           <label for="email" class="form-label">Email</label>
           <input
             v-model="email"
@@ -19,7 +31,7 @@
             @keydown.enter="valid && submit()"
           />
         </div>
-        <div class="mb-3">
+        <div class="mb-3" v-if="!activate">
           <label for="password" class="form-label"
             >Password <Icon @click="show_pass = !show_pass" sm :name="eye"
           /></label>
@@ -35,7 +47,7 @@
             :disabled="loading"
           />
         </div>
-        <div class="form-check form-switch">
+        <div class="form-check form-switch" v-if="!activate">
           <input
             class="form-check-input"
             type="checkbox"
@@ -48,6 +60,7 @@
       </template>
       <template #footer>
         <Button
+          v-if="!activate"
           ico="person-plus"
           success
           v-tooltip="'Register new user'"
@@ -55,6 +68,7 @@
           :disabled="loading"
         ></Button>
         <Button
+          v-if="!activate"
           :loading="loading"
           ico="unlock"
           @click="submit"
@@ -101,6 +115,7 @@ export default {
     remember: true,
     error: false,
     submited: false,
+    activate: false,
   }),
   computed: {
     ...mapGetters({
@@ -155,24 +170,33 @@ export default {
         .then(() => this.$emit("logout"));
     },
     show_dialog() {
+      this.activate = false;
       this.error = false;
       this.$refs.dialog.show();
     },
     submit() {
       this.submited = true;
       this.error = false;
+      this.activate = false;
       this.loading = true;
-      this.$store.dispatch(auth_types.actions.login, {
-        email: this.email,
-        password: this.password,
-        remember: this.remember,
-      });
+      this.$store
+        .dispatch(auth_types.actions.login, {
+          email: this.email,
+          password: this.password,
+          remember: this.remember,
+        })
+        .then()
+        .catch(this.auth_error);
     },
-    auth_error() {
+    auth_error(e) {
       this.loading = false;
       this.$refs.dialog.shake();
       this.password = null;
-      this.error = true;
+      if (e && e.response && e.response.status && e.response.status === 401) {
+        this.activate = true;
+      } else {
+        this.error = true;
+      }
     },
     hide_dialog() {
       if (this.$refs.dialog) {

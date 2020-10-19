@@ -20,7 +20,12 @@ const app = createApp(Main)
     .use(bootstrap)
     .mixin(titleMixin)
 
-when_verified(() => app.use(router).mount('#app'))
+when_verified(() => {
+    app.use(router)
+    app.config.globalProperties.$bootstrap_icons.then(() => {
+        app.mount('#app')
+    })
+})
 
 console.log('\n\
     █████╗ ███████╗ ██████╗     ██╗██╗    \n\
