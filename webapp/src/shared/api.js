@@ -1,28 +1,11 @@
-//const HOST = "http://localhost"
-//const PORT = "8000"
-const URL = '' //`${HOST + ':' + PORT}`
-
-const path = (p, s) => `${p + '/' + s}`
-
-const API = path(URL, "api")
-
-// AUTH
-const API_AUTH_LOGIN = path(API, "users/login/")
-const API_AUTH_LOGOUT = path(URL, 'api-auth/logout/')
-const API_AUTH_PERMISSIONS = path(API, 'users/permission/')
-
-// USER
-export const API_USER = path(API, "users")
-
 import axios from 'axios'
 
-const PAGE_SIZE = 5
+const API = `/api`
+export const PAGE_SIZE = 5
 
-export const get_actives = () => {
-    return axios.get(`${API_USER}/count`)
-}
+/*  GENERIC  */
 
-export const list = (endpoint, query) => {
+const list = (endpoint, query) => {
     query = query || { page: 1 }
     return new Promise((resolve, reject) =>
         axios.get(endpoint, { params: query })
@@ -40,14 +23,59 @@ export const list = (endpoint, query) => {
     )
 }
 
-export const get = (endpoint, id) => {
+const get = (endpoint, id) => {
     return axios.get(`${endpoint}/${id}`)
 }
 
+const post = (endpoint, entity) => {
+    return axios.post(`${endpoint}`, entity)
+}
+
+const put = (endpoint, entity) => {
+    return axios.post(`${endpoint}`, entity)
+}
+
+const remove = (endpoint) => {
+    return axios.delete(`${endpoint}`)
+}
+
+
+class Generic {
+    constructor(endpoint) {
+        this.endpoint = endpoint
+        this.list = (query) => list(`${API}/${endpoint}`, query)
+        this.view = (id) => get(`${API}/${endpoint}`, id)
+        this.create = (entity) => post(`${API}/${endpoint}`, entity)
+        this.update = (id, entity) => put(`${API}/${endpoint}/${id}`, entity)
+        this.remove = (id) => remove(`${API}/${endpoint}/${id}`)
+    }
+}
+
+
+// AUTH
+const API_AUTH_LOGIN = `${API}/users/login/`
+const API_AUTH_LOGOUT = `api-auth/logout/`
+
+
+// USER
+export const API_USER = `${API}/users`
+
+export const users = new Generic('users')
+//users.remove = (id) => remove(`${API_USER}/remove/${id}`)
+users.profile = () => axios.get(`${API_USER}/profile`)
+users.get_actives = () => axios.get(`${API_USER}/count`)
+users.set_permissions = (id, permissions) => {
+    return axios.put(`${API_USER}/setpermissions`, {
+        id,
+        permissions: permissions.map(p => p.replace(".", " ").replace("_", " ")).join(",")
+    })
+}
+users.profile_update_partial = (user) => axios.put(`${API_USER}/profile_update_partial`, user)
+users.register = (user) => axios.post(`${API_USER}/register`, user)
 
 export default {
     API_AUTH_LOGIN,
     API_AUTH_LOGOUT,
-    API_AUTH_PERMISSIONS,
-    API_USER
+    Generic,
+    users,
 }

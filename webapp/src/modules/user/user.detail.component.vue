@@ -30,11 +30,17 @@
       </li>
     </ul>
     <div class="card-footer text-right">
-      <router-link :to="`/user/${userId}/edit`">
+      <router-link
+        v-if="has_permission('users.change_user')"
+        :to="`/user/${userId}/edit`"
+      >
         <Button sm class="mr-3" ico="pencil"> Edit</Button>
       </router-link>
 
-      <router-link :to="`/user/${userId}/delete`">
+      <router-link
+        v-if="has_permission('users.delete_user')"
+        :to="`/user/${userId}/delete`"
+      >
         <Button sm danger ico="trash"> Delete</Button>
       </router-link>
     </div>
@@ -43,11 +49,18 @@
   <Button @click="goBack" ico="arrow-left">Voltar</Button>
 </template>
 <script>
-import { API_USER, get } from "@/shared/api";
+import auth_types from "@/modules/auth/auth.store.types";
+import { mapGetters } from "vuex";
+import { users } from "@/shared/api";
 import go from "@/shared/utils/go.to.router";
 
 export default {
   props: ["userId"],
+  computed: {
+    ...mapGetters({
+      has_permission: auth_types.getters.has_permission,
+    }),
+  },
   data: () => ({ user: null, error: false }),
   beforeMount() {
     this.loadUser();
@@ -61,12 +74,13 @@ export default {
     loadUser() {
       this.user = null;
       this.error = false;
-      get(API_USER, this.userId)
+      users
+        .view(this.userId)
         .then((response) => (this.user = response.data))
         .catch(() => (this.error = true));
     },
     goBack() {
-      go.back(this.$router);
+      go.back(this.$router, "/user");
     },
   },
 };

@@ -1,15 +1,15 @@
 <template>
-  <div>
+  <div v-if="current_user">
     <Display ico="gear">Profile</Display>
     <Display class="mb-5" lead>
       Atualize seu <strong>perfil</strong> em sua conta.
       <Badge
-        v-for="perm in current_user.permissions"
+        v-for="perm in current_user.permissions || []"
         :key="perm"
         :color="p2c(perm)"
         class="float-right mr-1"
         round
-        >{{ perm }}</Badge
+        >{{ short_name(perm) }}</Badge
       >
     </Display>
 
@@ -104,6 +104,7 @@ import {
   valid_first_name,
   valid_last_name,
 } from "../../shared/utils/validators";
+import { short_name, p2c } from "@/shared/utils/permissions";
 
 export default {
   title: "Profile",
@@ -145,6 +146,8 @@ export default {
     this.loadUser(this.current_user);
   },
   methods: {
+    short_name: short_name,
+    p2c: p2c,
     loadUser(user) {
       if (user) {
         this.fname = user.first_name;
@@ -178,15 +181,6 @@ export default {
       this.loading = false;
       this.loading_remove = false;
       this.$refs.alert.show();
-    },
-    p2c(p) {
-      if (p.startsWith("ADMIN")) {
-        return "info";
-      }
-      if (p.startsWith("apps")) {
-        return "primary";
-      }
-      return "secondary";
     },
     remove_account() {
       this.$dialog({

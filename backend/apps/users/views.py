@@ -3,6 +3,7 @@ import requests
 from uuid import uuid4
 
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import Permission
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
@@ -10,7 +11,7 @@ from django.template.loader import render_to_string
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from apps.users.models import User
 from apps.users.serializers import UserSerializer, UserWriteSerializer
@@ -20,7 +21,7 @@ from apps.users.permissions import CustomDjangoModelPermission
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [CustomDjangoModelPermission]
+    permission_classes = [IsAdminUser&CustomDjangoModelPermission]
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
@@ -70,10 +71,16 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(methods=['POST'], detail=False, permission_classes=[AllowAny])
     def register(self, request):
+
+
         last_name = request.data.get('last_name', None)
         first_name = request.data.get('first_name', None)
         email = request.data.get('email', None)
         password = request.data.get('password', None)
+        
+        is_active = request.data.get('is_active', False)
+        is_staff = request.data.get('is_admin', False)
+        is_admin = request.user and request.user.is_staff
 
         if first_name is None or email is None or password is None:
             return Response({'message': 'Os campos first name, email and password são obrigatorios.'})
@@ -83,8 +90,16 @@ class UserViewSet(viewsets.ModelViewSet):
 
         token = uuid4()
 
-        try:
-            params = { 'user': {'name': first_name, 'email': email, 'token': token}, 'DOMAIN': settings.DOMAIN }
+        try: ## FIX nameserver: smtp.gmail.com 172.217.192.108 
+             ## echo 172.217.192.108   smtp.gmail.com >> /etc/hosts
+            params = { 
+                'user': {
+                    'name': first_name, 
+                    'email': email, 
+                    'token': token
+                    }, 
+                'DOMAIN': settings.DOMAIN 
+                }
             send_mail(
                 subject='Criação do usuario no banco de dados',
                 message=render_to_string('mail/new_user.txt', params),
@@ -99,7 +114,9 @@ class UserViewSet(viewsets.ModelViewSet):
             password=password,
             last_name=last_name,
             first_name=first_name,
-            token=token
+            token=token,
+            is_active=is_admin and is_active,
+            is_staff=is_admin and is_staff,
         )
         return Response(
             UserSerializer(user).data,
@@ -176,7 +193,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return Response(data={'error': 2, 'message': 'Usuario ou senha incorreto.'})
 
-    @action(methods=['POST'], detail=False) ## access restrict to default: `IsAdminUser`
+    @action(methods=['PUT'], detail=False)
     def setpermissions(self, request):
 
         user_id = request.data.get('id', None)
@@ -184,10 +201,11 @@ class UserViewSet(viewsets.ModelViewSet):
             user = User.objects.filter(id=user_id)
             if user.exists():
                 user = user[0]
+
                 permissions = set()
                 perms = []
-                
-                for app, mode, entity in [tuple(p.split()) for p in request.data.get('permissions', '').split(',')]:
+                ps = [tuple(p.split()) for p in request.data.get('permissions', '').split(',') if p.count(' ') == 2]
+                for app, mode, entity in ps:
                     permission = Permission.objects.filter(content_type__app_label=app, codename=f"{mode}_{entity}")
                     perm_str = f'{app}.{mode}_{entity}'
                     
@@ -198,7 +216,7 @@ class UserViewSet(viewsets.ModelViewSet):
                         return Response(data={ 'error': f'Permission {perm_str} desconhecida.'})
                 
                 try:
-                    user.user_permissions.add(*tuple(permissions))
+                    user.user_permissions.set(permissions)
                     return Response(data={ 'permissions': perms})
                 except Exception as e:
                     return Response(data={ 'error': f'Unknown error: {e}.'})
@@ -210,11 +228,12 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(data={ 'error': 'O id deve ser fornecido.'})
 
     def remove_user(self, user):
-        print('REMOVED USER', user, user.email)
+        print('INACTIVED USER', user, user.email)
         try:
             if user.avatar:
                 os.remove(user.avatar.path)
-            user.delete()
+            ## user.delete()
+            user.is_active = False
             return True
         except:
             return False
@@ -224,19 +243,55 @@ class UserViewSet(viewsets.ModelViewSet):
         cont = User.objects.filter(is_active=True).count()
         return Response({'active': cont})
 
+    @action(methods=['PUT'], detail=False)
+    def profile_update_partial(self, request):
 
-    # def get_permissions(self):
-    #     """
-    #     Instantiates and returns the list of permissions that this view requires.
-    #     """
-    #     print('PERM', self.action)
-    #     permissions = [AllowAny]
-    #     if self.action == 'list': permissions = [ListPermision]
-    #     return [permission() for permission in permissions]
+        user_id = request.data.get('id', None)
+        if user_id:
+            user = User.objects.filter(id=user_id)
 
-    # PERMISSIONS: https://www.django-rest-framework.org/api-guide/viewsets/#viewset-actions
-    #  Create => create
-    #  View   => retrieve
-    #  List   => list
-    #  Update => update, partial_update
-    #  Remove => destroy
+            if user.exists():
+                user = user[0]
+                user.is_active = request.data.get('is_active', user.is_active)
+                user.is_staff = request.data.get('is_admin', user.is_staff)
+                user.first_name = request.data.get('first_name', user.first_name)
+                user.last_name = request.data.get('last_name', user.last_name)
+                user.email = request.data.get('email', user.email)
+                user.save()
+                serializer = self.serializer_class(user)
+                return Response(status=status.HTTP_200_OK, data=serializer.data)
+
+            ## if not user.exists()
+            return Response(data={ 'error': f'Usuario id: {user_id} desconhecido.'})
+        
+        ## not if user_id
+        return Response(data={ 'error': 'O id deve ser fornecido.'})
+
+    def destroy(self, request, pk=None, **kwargs):
+        user_id = pk
+
+        if user_id:
+            user = User.objects.filter(id=user_id)
+
+            if user.exists():
+                user = user[0]
+
+                user.is_active = False
+                
+                if self.remove_user(user):
+                    user.save()
+                    user.delete()
+                    print('REMOVED USER', user.id, user.email)
+                    return Response(status=204)
+
+                return Response(data={ 'error': f'Falhou ao remover dados do usuario {user_id}.'})
+
+            ## if not user.exists()
+            return Response(data={ 'error': f'Usuario id: {user_id} desconhecido.'})
+        
+        ## not if user_id
+        return Response(data={ 'error': 'O id deve ser fornecido.'})
+
+     
+
+        

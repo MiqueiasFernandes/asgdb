@@ -2,7 +2,14 @@
   <Display ico="people">
     User
     <router-link :to="'/user/new'">
-      <Button success ico="plus" class="float-right"> New</Button>
+      <Button
+        success
+        ico="plus"
+        class="float-right"
+        :disabled="!has_permission('users.add_user')"
+      >
+        New</Button
+      >
     </router-link>
   </Display>
   <div v-if="page">
@@ -70,17 +77,28 @@
               :key="perm"
               :color="p2c(perm)"
               class="mr-1"
-              round
-              >{{ cname(perm) }}</Badge
+              >{{ short_name(perm) }}</Badge
             >
           </td>
           <td class="text-right">
             <div class="btn-group" role="group">
               <Button @click="view(user.id)" sm ico="eye-fill"> View </Button>
-              <Button @click="edit(user.id)" sm secondary ico="pencil-fill">
+              <Button
+                @click="edit(user.id)"
+                sm
+                secondary
+                ico="pencil-fill"
+                :disabled="!has_permission('users.change_user')"
+              >
                 Edit
               </Button>
-              <Button @click="remove(user.id)" sm danger ico="trash-fill">
+              <Button
+                @click="remove(user.id)"
+                sm
+                danger
+                ico="trash-fill"
+                :disabled="!has_permission('users.delete_user')"
+              >
                 Remove
               </Button>
             </div>
@@ -100,11 +118,17 @@
   </div>
 </template>
 <script>
-import { list, get_actives, API_USER } from "@/shared/api";
+import auth_types from "@/modules/auth/auth.store.types";
+import { mapGetters } from "vuex";
+import { users } from "@/shared/api";
+import { short_name, p2c } from "@/shared/utils/permissions";
 
 export default {
   title: "User",
   computed: {
+    ...mapGetters({
+      has_permission: auth_types.getters.has_permission,
+    }),
     current_page: (t) =>
       parseInt(
         t.$route.query.page ? t.$route.query.page : t.page ? t.page.page : 1
@@ -117,32 +141,15 @@ export default {
   }),
   mounted() {
     this.loadPage(this.current_page);
-    get_actives().then((r) => (this.actives = r.data.active));
+    users.get_actives().then((r) => (this.actives = r.data.active));
   },
   methods: {
-    cname: (n) => n.replace(/\..+_/, '/'),
-    p2c(p) {
-      if (p.includes(".change_")) {
-        return "warning";
-      }
-      if (p.includes(".delete_")) {
-        return "danger";
-      }
-      if (p.includes(".view_")) {
-        return "primary";
-      }
-      if (p.includes(".add_")) {
-        return "success";
-      }
-      if (p === "ADMIN") {
-        return "info";
-      }
-      return "secondary";
-    },
+    short_name: short_name,
+    p2c: p2c,
 
     loadPage(page_number) {
       this.loading = true;
-      list(API_USER, { page: page_number }).then(this.load).catch(this.error);
+      users.list({ page: page_number }).then(this.load).catch(this.error);
     },
 
     load(page) {
@@ -163,7 +170,7 @@ export default {
       this.$router.push({ path: `/user/${id}/edit` });
     },
     remove(id) {
-      this.$router.push({ path: `/user/${id}/remove` });
+      this.$router.push({ path: `/user/${id}/delete` });
     },
   },
 };

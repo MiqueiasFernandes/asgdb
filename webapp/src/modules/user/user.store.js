@@ -1,7 +1,6 @@
-import axios from 'axios'
 import types from './user.store.types'
 import auth_types from '@/modules/auth/auth.store.types'
-import API from '@/shared/api'
+import { users } from '@/shared/api'
 
 const state = {
     current_user: null
@@ -26,7 +25,7 @@ const actions = {
                 context.commit(auth_types.mutations.LOGOUT, null, { root: true })
                 context.commit(types.CURRENT_USER, null)
             }
-            axios.get(`${API.API_USER}/profile`)
+            users.profile()
                 .then(response => {
                     const data = response.data
                     if (data.is_authenticated) {

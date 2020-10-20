@@ -110,23 +110,24 @@ export default {
       center: t.center || (t.queue.length > 0 ? t.queue[0].center : false),
       scrool: t.scrool || (t.queue.length > 0 ? t.queue[0].scrool : false),
       static: t.static || (t.queue.length > 0 ? t.queue[0].static : false),
+      onClosed: t.queue.length > 0 ? t.queue[0].onClosed : () => {},
       sm: t.sm || (t.queue.length > 0 ? t.queue[0].sm : false),
       lg: t.lg || (t.queue.length > 0 ? t.queue[0].lg : false),
       btn_center:
         t.btn_center || (t.queue.length > 0 ? t.queue[0].btn_center : false),
-      focus: t.queue.length > 0 ? t.queue[0].focus : t.focus,
+      focus: (t.queue.length > 0 ? t.queue[0].focus : t.focus) ||  "dialog",
     }),
-    focusOn: (t) => t.current.focus || "dialog",
   },
   data: () => ({ modal: null, queue: [], shake_dialog: "" }),
   mounted() {
     this.modal = new this.$bootstrap.Modal(this.$refs.modal, this.options);
 
     this.$refs.modal.addEventListener("shown.bs.modal", () =>
-      document.getElementById(this.focusOn).focus()
+      document.getElementById(this.current.focus).focus()
     );
     this.$refs.modal.addEventListener("hidden.bs.modal", () => {
       this.$emit("close");
+      this.current.onClosed()
       this.next();
     });
     if (this.global) {
