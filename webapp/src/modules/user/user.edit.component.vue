@@ -136,7 +136,7 @@
         success
         :loading="loading"
         @click="create"
-        :disabled="no_changed || loading"
+        :disabled="no_changed || loading || !user.first_name || !user.email"
         >Create</Button
       >
     </template>
@@ -167,8 +167,9 @@ export default {
       t.user.email === t.backup.email &&
       t.user.is_active === t.backup.is_active &&
       t.user.is_admin === t.backup.is_admin &&
-      t.user.permissions.every((x) => t.backup.permissions.includes(x)) &&
-      t.backup.permissions.every((x) => t.user.permissions.includes(x)),
+      ((t.user.permissions.length + t.backup.permissions.length < 1) || (
+      (t.user.permissions.every((x) => t.backup.permissions.includes(x)) &&
+      t.backup.permissions.every((x) => t.user.permissions.includes(x))))),
   },
   data: () => ({
     user: null,

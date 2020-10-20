@@ -1,5 +1,5 @@
 import axios from 'axios'
-import API from '@/shared/api'
+import { API_AUTH_LOGOUT, API_AUTH_LOGIN, API_USER } from '@/shared/api'
 import types from './auth.store.types'
 import user_types from '@/modules/user/user.store.types'
 
@@ -31,7 +31,7 @@ const actions = {
 
     async register(context, payload) {
         return new Promise((resolve, reject) => {
-            axios.post(API.API_USER + '/register/', payload)
+            axios.post(API_USER + '/register/', payload)
                 .then(response => {
                     if (response.status === 201) {
                         resolve()
@@ -48,7 +48,7 @@ const actions = {
 
     activate(context, payload) {
         return new Promise((resolve, reject) => {
-            axios.post(API.API_USER + '/activate/', payload)
+            axios.post(API_USER + '/activate/', payload)
                 .then(response => {
                     if (response) {
                         if (response.status) {
@@ -66,7 +66,7 @@ const actions = {
 
     reset_password(context, payload) {
         return new Promise((resolve, reject) => {
-            axios.post(API.API_USER + '/password_reset/', payload)
+            axios.post(API_USER + '/password_reset/', payload)
                 .then(response => {
                     if (response) {
                         if (response.status) {
@@ -83,7 +83,7 @@ const actions = {
 
     update_password(context, payload) {
         return new Promise((resolve, reject) => {
-            axios.post(API.API_USER + '/password_change/', payload)
+            axios.post(API_USER + '/password_change/', payload)
                 .then(response => {
                     if (response) {
                         if (response.status) {
@@ -100,7 +100,7 @@ const actions = {
 
     async login(context, payload) {
         return new Promise((resolve, reject) => {
-            axios.post(API.API_AUTH_LOGIN, payload)
+            axios.post(API_AUTH_LOGIN, payload)
                 .then((response) => {
                     const data = response.data;
                     if (data.is_authenticated) {
@@ -118,7 +118,7 @@ const actions = {
 
     update_profile(context, payload) {
         return new Promise((resolve, reject) => {
-            axios.post(API.API_USER + '/profile_update/', payload, {
+            axios.post(API_USER + '/profile_update/', payload, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -133,7 +133,7 @@ const actions = {
         context.commit(types.LOGOUT)
         context.commit(user_types.mutations.CURRENT_USER, null, { root: true })
         return new Promise((resolve, reject) => {
-            axios.get(API.API_AUTH_LOGOUT)
+            axios.get(API_AUTH_LOGOUT)
                 .then(resolve)
                 .catch(reject)
         })

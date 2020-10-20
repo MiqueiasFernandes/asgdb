@@ -53,8 +53,8 @@ class Generic {
 
 
 // AUTH
-const API_AUTH_LOGIN = `${API}/users/login/`
-const API_AUTH_LOGOUT = `api-auth/logout/`
+export const API_AUTH_LOGIN = `${API}/users/login/`
+export const API_AUTH_LOGOUT = `api-auth/logout/`
 
 
 // USER
@@ -74,8 +74,6 @@ users.profile_update_partial = (user) => axios.put(`${API_USER}/profile_update_p
 users.register = (user) => axios.post(`${API_USER}/register`, user)
 
 export default {
-    API_AUTH_LOGIN,
-    API_AUTH_LOGOUT,
     Generic,
     users,
 }
