@@ -12,7 +12,7 @@ const routes = [
         path: '/user',
         name: 'User',
         component: () => import('./user.component.vue'),
-        beforeEnter: authenticated_admin // & user_List
+        beforeEnter: (to, _, next) => authenticated_admin(to, next, ['users.view_user']) // & user_List
     },
     {
         // /user/new => cria o user 1

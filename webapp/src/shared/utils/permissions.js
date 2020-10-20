@@ -1,37 +1,35 @@
 import store from '@/plugins/store'
 import auth_types from '@/modules/auth/auth.store.types'
+import user_types from '@/modules/user/user.store.types'
 
 
 export const verify_perm = (perms, router, route = '/') => {
-    const unauthorized = () => router({ name: 'Unauthorized', query: { reason: route } })
-    const authorized = () => router()
-    const unveryfied = () => router({ name: 'Login', query: { next: route } })
+    const needed_permissions = typeof (perms) === 'string' ? [perms] : perms
+    const is_authenticated = store.getters[auth_types.getters.is_authenticated]
+    const user_has_permissions = (p) => store.getters[auth_types.getters.has_permissions](p)
 
-    const permissions = typeof (perms) === 'string' ? [perms] : perms
-    const has_perms = () => store.getters[auth_types.getters.has_permissions](permissions)
-
-    const un_authenticated = store.getters[auth_types.getters.is_verified_unauthenticated]
-    const permissions_loaded = store.getters[auth_types.getters.permissions_loaded]
-
-    const verify_if_has_permissions = () => has_perms() ? authorized() : unauthorized()
-
-    if (un_authenticated) {
-        unveryfied()
-    } else if (permissions_loaded) {
-        verify_if_has_permissions()
+    if (is_authenticated) {
+        if (user_has_permissions(needed_permissions)) router()
+        else router({ name: 'Unauthorized', query: { reason: route } })
     } else {
-        store.dispatch(auth_types.actions.permissions)
-            .then(verify_if_has_permissions)
-            .catch(unveryfied)
+        router({ name: 'Login', query: { next: route } })
     }
 }
 
-export const when_verified = (process) => verify_perm(['USER'], process)
+let verified = false;
 
-export const authenticated_user = (to, from, next) => {
-    verify_perm(['USER'], next, to.path)
+const ifNotVerified = (run) => (verified = verified || run() || true)
+
+export const when_verified = (process) => {
+    store.dispatch(user_types.actions.current_user)
+        .then(() => ifNotVerified(process))
+        .catch(() => ifNotVerified(process))
 }
 
-export const authenticated_admin = (to, from, next) => {
-    verify_perm(['ADMIN'], next, to.path)
+export const authenticated_user = (to, next, permissions) => {
+    verify_perm(['USER', ...permissions], next, to.path)
+}
+
+export const authenticated_admin = (to, next, permissions) => {
+    verify_perm(['ADMIN', ...permissions], next, to.path)
 }

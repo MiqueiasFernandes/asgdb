@@ -27,9 +27,20 @@ export default {
   },
   data: () => ({ icon: "" }),
   beforeMount() {
-    this.$bootstrap_icons.then(
-      (icons) => (this.icon = icons[`${this.name}${this.fill ? "-fill" : ""}`])
-    );
+    this.setIcon();
+  },
+  watch: {
+    name() {
+      this.setIcon();
+    },
+  },
+  methods: {
+    setIcon() {
+      this.$bootstrap_icons.then(
+        (icons) =>
+          (this.icon = icons[`${this.name}${this.fill ? "-fill" : ""}`])
+      );
+    },
   },
 };
 </script>

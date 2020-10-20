@@ -20,15 +20,27 @@ const mutations = {
 
 
 const actions = {
-    async current_user(context) {
-        try {
-            const response = await axios.get(`${API.API_USER}/profile`)
-            context.commit(types.CURRENT_USER, response.data)
-            context.commit(auth_types.mutations.LOGGED, null, { root: true })
-        } catch (e) {
-            context.commit(auth_types.mutations.UNLOGGED, null, { root: true })
-            context.commit(types.CURRENT_USER, null)
-        }
+    current_user(context) {
+        return new Promise((resolve, reject) => {
+            const un_authenticated = () => {
+                context.commit(auth_types.mutations.LOGOUT, null, { root: true })
+                context.commit(types.CURRENT_USER, null)
+            }
+            axios.get(`${API.API_USER}/profile`)
+                .then(response => {
+                    const data = response.data
+                    if (data.is_authenticated) {
+                        context.commit(auth_types.mutations.LOGIN, data, { root: true })
+                        context.commit(types.CURRENT_USER, data.profile)
+                    } else {
+                        un_authenticated()
+                    }
+                    resolve(data.profile)
+                }, (e) => {
+                    un_authenticated()
+                    reject(e)
+                })
+        })
     },
 }
 

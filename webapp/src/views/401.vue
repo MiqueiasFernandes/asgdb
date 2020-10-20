@@ -5,7 +5,7 @@
     <Display lead>Você não possui permissões para acessar esta página.</Display>
     <Display lead
       >Tente fazer
-      <router-link :to="{path: '/login', query: next }">
+      <router-link :to="{ name: 'Login', query: query }">
         <Button outline secondary ico="unlock">login</Button>
       </router-link>
       novamente com outra conta.</Display
@@ -16,11 +16,14 @@
 <script>
 export default {
   computed: {
-    next: (t) => (t.$route.query.reason ? { next: t.$route.query.reason } : {}),
+    query: (t) =>
+      t.$route.query.reason
+        ? { next: t.$route.query.reason, other: "yes" }
+        : { other: "yes" },
   },
   methods: {
     closed() {
-      this.$router.push("/");
+      this.$router.push({ name: "Home" });
     },
   },
 };

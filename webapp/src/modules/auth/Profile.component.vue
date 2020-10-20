@@ -4,7 +4,7 @@
     <Display class="mb-5" lead>
       Atualize seu <strong>perfil</strong> em sua conta.
       <Badge
-        v-for="perm in permissions"
+        v-for="perm in current_user.permissions"
         :key="perm"
         :color="p2c(perm)"
         class="float-right mr-1"
@@ -110,7 +110,6 @@ export default {
   computed: {
     ...mapGetters({
       current_user: user_types.getters.current_user,
-      permissions: auth_types.getters.permissions,
     }),
     original_photo: (t) =>
       t.avatar === "/staticfiles/images/default_avatar.png",

@@ -71,7 +71,7 @@
               :color="p2c(perm)"
               class="mr-1"
               round
-              >{{ perm }}</Badge
+              >{{ cname(perm) }}</Badge
             >
           </td>
           <td class="text-right">
@@ -120,12 +120,22 @@ export default {
     get_actives().then((r) => (this.actives = r.data.active));
   },
   methods: {
+    cname: (n) => n.replace(/\..+_/, '/'),
     p2c(p) {
-      if (p.startsWith("ADMIN")) {
-        return "info";
+      if (p.includes(".change_")) {
+        return "warning";
       }
-      if (p.startsWith("apps")) {
+      if (p.includes(".delete_")) {
+        return "danger";
+      }
+      if (p.includes(".view_")) {
         return "primary";
+      }
+      if (p.includes(".add_")) {
+        return "success";
+      }
+      if (p === "ADMIN") {
+        return "info";
       }
       return "secondary";
     },

@@ -22,7 +22,8 @@ class UserSerializer(serializers.ModelSerializer):
         return obj.short_name
 
     def get_permissions(self, obj):
-        permissions = [p.codename for p in obj.user_permissions.all()] + ['USER']
+        permissions = ['USER']
+        permissions += [f'{x.content_type.app_label}.{x.codename}' for x in obj.user_permissions.all()]
         if obj.is_staff: permissions.append('ADMIN')
         return permissions
 

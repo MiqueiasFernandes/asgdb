@@ -1,12 +1,7 @@
 <template>
   <div class="main">
     <Toast global />
-    <Login
-      v-if="no_login"
-      ref="login"
-      programatic_login
-      @logout="closeSidebar"
-    />
+    <Login v-if="not_in_login" ref="login" muted />
     <Sidebar ref="sidebar" @logout="logout" />
     <Navbar
       ref="navbar"
@@ -42,7 +37,7 @@ export default {
     Footer,
   },
   computed: {
-    no_login: (t) => t.$route.name !== "Login",
+    not_in_login: (t) => !["Login", "Logout"].includes(t.$route.name),
   },
   mounted() {
     window.addEventListener("scroll", this.handleScroll);
@@ -62,7 +57,9 @@ export default {
       this.$refs.sidebar.close();
     },
     login() {
-      this.$refs.login.login();
+      if (this.not_in_login) {
+        this.$refs.login.login();
+      }
     },
     logout() {
       this.$refs.login.logout();

@@ -1,13 +1,16 @@
 <template>
-  <nav class="shadow sidebar bg-light" :class="{ hidden: opened }">
+  <nav
+    class="shadow sidebar bg-light"
+    :class="{ show: opened }"
+    v-if="current_user"
+  >
     <div class="container-fluid">
-      <div class="mx-3 mb-4 mt-2 text-center" v-if="current_user">
+      <div class="mx-3 mb-4 mt-2 text-center">
         <div>
           <strong>{{ current_user.full_name }}</strong>
         </div>
         <span class="text-muted">{{ current_user.email }}</span>
       </div>
-
       <div class="accordion" id="accordion">
         <div
           class="card"
@@ -75,9 +78,7 @@ export default {
 
   computed: {
     ...mapGetters({
-      is_authenticated: auth_types.getters.is_authenticated,
       is_admin: auth_types.getters.is_admin,
-      permissions: auth_types.getters.permissions,
       current_user: user_types.getters.current_user,
     }),
   },
@@ -88,18 +89,13 @@ export default {
   }),
 
   watch: {
-    is_authenticated(auth_state) {
-      if (!auth_state) {
-        this.close();
-      }
-    },
     current_user() {
       this.load();
     },
+  },
 
-    permissions() {
-      this.load();
-    },
+  mounted() {
+    this.load();
   },
 
   methods: {
@@ -138,25 +134,23 @@ export default {
     },
 
     load() {
-      if (this.current_user) {
-        this.build();
-        setTimeout(() => this.mudar(this.collapses[0]), 800);
-      }
-    },
-
-    build() {
-      // for default user
       const collapses = [];
-      collapses.push(this.collapse_user());
+      if (this.current_user) {
+        collapses.push(this.collapse_user());
+      }
       if (this.is_admin) {
         collapses.push(this.colapse_admin());
       }
       this.collapses = collapses;
+      if (collapses.length > 0) {
+        setTimeout(() => this.mudar(this.collapses[0]), 800);
+      } else {
+        this.close();
+      }
     },
 
-    init() {
+    mudar(collapse) {
       this.collapses.forEach((c) => {
-        true;
         if (!c.instance) {
           c.open = !!(c.instance = new this.$bootstrap.Collapse(
             this.$refs[c.id]
@@ -165,10 +159,6 @@ export default {
         c.instance.hide();
         c.open = false;
       });
-    },
-
-    mudar(collapse) {
-      this.init();
       collapse.open =
         "true" ===
         this.$refs[collapse.id + "-btn"].getAttribute("aria-expanded");
@@ -181,7 +171,7 @@ export default {
     },
 
     open() {
-      if (!this.is_authenticated) {
+      if (!this.current_user) {
         return false;
       }
       return (this.opened = true);
@@ -210,6 +200,7 @@ export default {
 
     act_logout() {
       this.$emit("logout");
+      this.$router.push({ name: "Home" });
       this.close();
     },
 
@@ -232,7 +223,7 @@ export default {
 </script>
 
 <style scoped>
-.hidden {
+.show {
   right: 0 !important;
 }
 

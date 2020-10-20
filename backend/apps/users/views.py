@@ -10,18 +10,17 @@ from django.template.loader import render_to_string
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from apps.users.models import User
 from apps.users.serializers import UserSerializer, UserWriteSerializer
-import time
-
-from apps.users.permissions import ListPermision
+from apps.users.permissions import CustomDjangoModelPermission
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [CustomDjangoModelPermission]
 
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
@@ -43,12 +42,12 @@ class UserViewSet(viewsets.ModelViewSet):
         instance.is_active = False
         instance.save()
 
-    @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated])
+    @action(methods=['GET'], detail=False, permission_classes=[AllowAny])
     def profile(self, request):
         if request.user.is_authenticated:
             serializer = self.serializer_class(request.user)
-            return Response(status=status.HTTP_200_OK, data=serializer.data)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(status=status.HTTP_200_OK, data={'profile': serializer.data, 'is_authenticated': True})
+        return Response(data={'is_authenticated': False})
 
     @action(methods=['POST'], detail=False, permission_classes=[IsAuthenticated])
     def profile_update(self, request):
@@ -158,8 +157,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
         if user.exists():
             user = user[0]
+
             if user and not user.is_active:
-                return Response(status=status.HTTP_401_UNAUTHORIZED)
+                return Response(data={'error': 1, 'message': 'Usuario inativo.'})
 
             user = authenticate(username=email, password=password)
 
@@ -171,28 +171,43 @@ class UserViewSet(viewsets.ModelViewSet):
                     if remove and not self.remove_user(user):
                         Response(status=status.HTTP_404_NOT_FOUND)
 
-                return Response(status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+                serializer = self.serializer_class(user)
+                return Response(data={ 'profile': serializer.data, 'is_authenticated': True})
+
+        return Response(data={'error': 2, 'message': 'Usuario ou senha incorreto.'})
 
     @action(methods=['POST'], detail=False) ## access restrict to default: `IsAdminUser`
     def setpermissions(self, request):
-        for mod, entity, perm in [tuple(p.split()) for p in request.data.get('permissions', '').split(',')]:
-            module = importlib.import_module(mod)##'apps.users.models')
-            model = getattr(module, entity)##'User')             
-            content_type = ContentType.objects.get_for_model(model)
-            permission = Permission.objects.create( 
-                                                   codename=f'{entity}:{perm}', 
-                                                   name=f'{entity}: {perm}', 
-                                                   content_type=content_type)
-            print('Atribuindo',  permission, ' a ', request.user.email)
-            request.user.user_permissions.add(permission)
-        return Response(status=status.HTTP_200_OK)
 
-    @action(methods=['GET'], detail=False, permission_classes=[IsAuthenticated])
-    def permission(self, request):
-        permissions = [p.codename for p in request.user.user_permissions.all()] + ['USER']
-        if request.user.is_staff: permissions.append('ADMIN')
-        return Response(status=status.HTTP_200_OK, data={'permissions': permissions})
+        user_id = request.data.get('id', None)
+        if user_id:
+            user = User.objects.filter(id=user_id)
+            if user.exists():
+                user = user[0]
+                permissions = set()
+                perms = []
+                
+                for app, mode, entity in [tuple(p.split()) for p in request.data.get('permissions', '').split(',')]:
+                    permission = Permission.objects.filter(content_type__app_label=app, codename=f"{mode}_{entity}")
+                    perm_str = f'{app}.{mode}_{entity}'
+                    
+                    if permission.exists():
+                        permissions.add(permission[0])
+                        perms.append(perm_str)
+                    else:
+                        return Response(data={ 'error': f'Permission {perm_str} desconhecida.'})
+                
+                try:
+                    user.user_permissions.add(*tuple(permissions))
+                    return Response(data={ 'permissions': perms})
+                except Exception as e:
+                    return Response(data={ 'error': f'Unknown error: {e}.'})
+            
+            ## if not user.exists()
+            return Response(data={ 'error': f'Usuario id: {user_id} desconhecido.'})
+        
+        ## not if user_id
+        return Response(data={ 'error': 'O id deve ser fornecido.'})
 
     def remove_user(self, user):
         print('REMOVED USER', user, user.email)
@@ -210,14 +225,14 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({'active': cont})
 
 
-    def get_permissions(self):
-        """
-        Instantiates and returns the list of permissions that this view requires.
-        """
-        print('PERM', self.action)
-        permissions = [AllowAny]
-        if self.action == 'list': permissions = [ListPermision]
-        return [permission() for permission in permissions]
+    # def get_permissions(self):
+    #     """
+    #     Instantiates and returns the list of permissions that this view requires.
+    #     """
+    #     print('PERM', self.action)
+    #     permissions = [AllowAny]
+    #     if self.action == 'list': permissions = [ListPermision]
+    #     return [permission() for permission in permissions]
 
     # PERMISSIONS: https://www.django-rest-framework.org/api-guide/viewsets/#viewset-actions
     #  Create => create

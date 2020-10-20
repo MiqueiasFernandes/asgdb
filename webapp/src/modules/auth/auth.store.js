@@ -3,45 +3,27 @@ import API from '@/shared/api'
 import types from './auth.store.types'
 import user_types from '@/modules/user/user.store.types'
 
-export const LoginState = {
-    UN_VERIFIED: 1,
-    AUTHENTICATED: 2,
-    UN_AUTHENTICATED: 3
-}
-
 const state = {
-    auth: LoginState.UN_VERIFIED,
+    is_authenticated: false,
     permissions: []
 }
 
 const getters = {
-    status: state => state.auth,
-    is_verified: state => state.auth !== LoginState.UN_VERIFIED,
-    is_verified_unauthenticated: state => state.auth === LoginState.UN_AUTHENTICATED,
+    is_authenticated: state => state.is_authenticated,
+    is_user: (state, getters) => getters.has_permission('USER'),
     is_admin: (state, getters) => getters.has_permission('ADMIN'),
-    is_authenticated: state => state.auth === LoginState.AUTHENTICATED,
-    permissions: state => state.permissions,
-    permissions_loaded: state => state.permissions.length > 0,
     has_permission: state => (permission) => state.permissions.includes(permission),
     has_permissions: state => (permissions) => permissions.every(p => state.permissions.includes(p))
 }
 
 const mutations = {
-    [types.AUTH](state, payload) {
-        state.auth = payload
-        if (state.auth !== LoginState.AUTHENTICATED) {
-            state.permissions = []
-        }
+    [types.LOGIN](state, payload) {
+        state.is_authenticated = true
+        state.permissions = payload.profile.permissions
     },
-    [types.LOGGED](state) {
-        state.auth = LoginState.AUTHENTICATED
-    },
-    [types.UNLOGGED](state) {
-        state.auth = LoginState.UN_AUTHENTICATED
+    [types.LOGOUT](state) {
+        state.is_authenticated = false
         state.permissions = []
-    },
-    [types.PERM](state, payload) {
-        state.permissions = payload
     }
 }
 
@@ -117,48 +99,19 @@ const actions = {
     },
 
     async login(context, payload) {
-        if (!payload.remove) {
-            context.commit(types.AUTH, LoginState.UN_VERIFIED)
-        }
         return new Promise((resolve, reject) => {
             axios.post(API.API_AUTH_LOGIN, payload)
-                .then(() => {
-                    if (!payload.remove) {
-                        context.commit(types.AUTH, LoginState.AUTHENTICATED)
-                        context.dispatch(user_types.actions.current_user, null, { root: true })
-                        context.dispatch('permissions')
+                .then((response) => {
+                    const data = response.data;
+                    if (data.is_authenticated) {
+                        context.commit(types.LOGIN, data)
+                        context.commit(user_types.mutations.CURRENT_USER, data.profile, { root: true })
                     }
-                    if (resolve) {
-                        resolve();
-                    }
+                    resolve(data);
                 })
                 .catch((e) => {
-                    if (payload.remove) {
-                        context.commit(types.AUTH, LoginState.AUTHENTICATED)
-                    } else {
-                        context.commit(types.AUTH, LoginState.UN_AUTHENTICATED)
-                        context.commit(types.PERM, [])
-                    }
-                    if (reject) {
-                        reject(e)
-                    }
-                })
-        })
-    },
-
-    async permissions(context) {
-        return new Promise((resolve, reject) => {
-            axios.get(API.API_AUTH_PERMISSIONS)
-                .then((response) => {
-                    const permissions = response.data.permissions
-                    context.commit(types.AUTH, LoginState.AUTHENTICATED)
-                    context.commit(types.PERM, permissions)
-                    resolve(permissions)
-                })
-                .catch(() => {
-                    context.commit(types.AUTH, LoginState.UN_AUTHENTICATED)
-                    context.commit(types.PERM, []);
-                    reject()
+                    context.commit(types.LOGOUT)
+                    reject(e);
                 })
         })
     },
@@ -177,9 +130,8 @@ const actions = {
     },
 
     async logout(context) {
-        context.commit(types.AUTH, LoginState.UN_AUTHENTICATED)
+        context.commit(types.LOGOUT)
         context.commit(user_types.mutations.CURRENT_USER, null, { root: true })
-        context.commit(types.PERM, []);
         return new Promise((resolve, reject) => {
             axios.get(API.API_AUTH_LOGOUT)
                 .then(resolve)

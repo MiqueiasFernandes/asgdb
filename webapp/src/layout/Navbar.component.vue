@@ -76,7 +76,6 @@
 </template>
 
 <script>
-import auth_types from "../modules/auth/auth.store.types";
 import user_types from "../modules/user/user.store.types";
 import { mapGetters } from "vuex";
 
@@ -90,15 +89,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      is_verified_unauthenticated:
-        auth_types.getters.is_verified_unauthenticated,
       current_user: user_types.getters.current_user,
     }),
-  },
-  mounted() {
-    if (!this.is_verified_unauthenticated) {
-      this.$store.dispatch(user_types.actions.current_user);
-    }
   },
   methods: {
     login() {
