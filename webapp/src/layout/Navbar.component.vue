@@ -55,12 +55,22 @@
         <div class="d-flex justify-content-evenly">
           <div class="input-group mr-3" style="width: 20rem">
             <input
+              v-model="query"
               class="form-control"
               type="search"
               placeholder="Search"
               aria-label="Search"
+              :disabled="search_loading"
+              @keydown.enter="search"
             />
-            <Button success outline ico="search" />
+            <Button
+              success
+              outline
+              ico="search"
+              @click="search"
+              :loading="search_loading"
+              :disabled="search_loading"
+            />
           </div>
           <Button v-if="!current_user" @click="login" outline ico="person" />
           <img
@@ -91,13 +101,23 @@ export default {
     ...mapGetters({
       current_user: user_types.getters.current_user,
     }),
+    ...mapGetters(["search_loading", "search_query"]),
   },
+  watch: {
+    search_query(q) {
+      this.query = q;
+    },
+  },
+  data: () => ({ query: "" }),
   methods: {
     login() {
       this.$emit("login");
     },
     toggle() {
       this.$emit("toggle");
+    },
+    search() {
+      this.$store.commit("search", this.query);
     },
   },
 };

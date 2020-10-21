@@ -32,21 +32,47 @@
       <thead class="table-light">
         <tr>
           <th scope="col">
-            <Button color="none" sm>Id <Icon name="arrow-down" sm /></Button>
+            <SortButton
+              field="id"
+              :ordering="page.ordering"
+              @sort="sort"
+              label="Id"
+            />
           </th>
           <th class="text-center">
-            <Button color="none" sm>Email <Icon name="arrow-up" sm /></Button>
+            <SortButton
+              field="email"
+              :ordering="page.ordering"
+              @sort="sort"
+              label="Email"
+            />
           </th>
           <th>
-            <Button color="none" sm>Since <Icon name="arrow-up" sm /></Button>
+            <SortButton
+              field="registered_at"
+              :ordering="page.ordering"
+              @sort="sort"
+              label="Since"
+            />
           </th>
           <th class="text-center">
-            <Button color="none" sm>Active <Icon name="arrow-up" sm /></Button>
+            <SortButton
+              field="is_active"
+              :ordering="page.ordering"
+              @sort="sort"
+              label="Active"
+            />
           </th>
-          <th>
-            <Button class="text-center" color="none" sm
-              >Permissions <Icon name="arrow-up" sm
-            /></Button>
+          <th class="text-center">
+            <SortButton
+              field="is_staff"
+              :ordering="page.ordering"
+              @sort="sort"
+              label="Admin"
+            />
+          </th>
+          <th class="text-center">
+            <Button color="none" sm>Permissions </Button>
           </th>
           <th class="center"></th>
         </tr>
@@ -69,6 +95,12 @@
             <Icon
               :name="user.is_active ? 'check2' : 'x'"
               :color="user.is_active ? 'success' : 'danger'"
+            />
+          </td>
+          <td class="text-center">
+            <Icon
+              :name="user.is_staff ? 'check2' : 'x'"
+              :color="user.is_staff ? 'success' : 'danger'"
             />
           </td>
           <td class="text-center">
@@ -122,10 +154,15 @@ import auth_types from "@/modules/auth/auth.store.types";
 import { mapGetters } from "vuex";
 import { users } from "@/shared/api";
 import { short_name, p2c } from "@/shared/utils/permissions";
+import SortButton from "../../shared/generic_entity/SortButton";
 
 export default {
   title: "User",
+  components: {
+    SortButton,
+  },
   computed: {
+    ...mapGetters(["search_query"]),
     ...mapGetters({
       has_permission: auth_types.getters.has_permission,
     }),
@@ -139,6 +176,13 @@ export default {
     loading: false,
     actives: "",
   }),
+  watch: {
+    search_query(query) {
+      if (query && query.trim().length > 0) {
+        this.start_search(query.trim());
+      }
+    },
+  },
   mounted() {
     this.loadPage(this.current_page);
     users.get_actives().then((r) => (this.actives = r.data.active));
@@ -147,18 +191,41 @@ export default {
     short_name: short_name,
     p2c: p2c,
 
+    sort(by) {
+      this.loading = true;
+      users.list({ ordering: by }).then(this.load).catch(this.error);
+    },
+
+    start_search(query) {
+      this.$store.commit("search_loading", true);
+      console.log(query);
+      try {
+        const q = JSON.parse(query);
+        users.list(q).then(this.load);
+      } catch {
+        console.log(query);
+        this.stop_loading_search();
+      }
+    },
+
+    stop_loading_search() {
+      this.$store.commit("search_loading", false);
+    },
+
     loadPage(page_number) {
       this.loading = true;
       users.list({ page: page_number }).then(this.load).catch(this.error);
     },
 
     load(page) {
+      this.stop_loading_search();
       this.loading = false;
       this.page = page;
       this.$router.push({ name: "User", query: { page: page.page } });
     },
 
     error() {
+      this.stop_loading_search();
       this.loading = false;
       alert("erro");
     },

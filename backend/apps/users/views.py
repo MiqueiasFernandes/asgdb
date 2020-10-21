@@ -23,6 +23,18 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser&CustomDjangoModelPermission]
 
+    ## Filter: https://www.django-rest-framework.org/api-guide/filtering/
+
+    ## field filter       : ?category=clothing&in_stock=True
+    filterset_fields = ['id', 'is_active', 'is_staff', 'email', 'registered_at', 'first_name', 'last_name']  
+    
+    ## full fields search : ?search=russell  <= text only
+    search_fields = ['id', 'email', 'first_name', 'last_name', 'registered_at'] 
+
+    ## ordering           : ?ordering=account,-username
+    ordering = ['-id'] 
+    ordering_fields = ['id', 'is_active', 'email', 'registered_at', 'is_staff']  
+
     def get_serializer_class(self):
         if self.action in ['list', 'retrieve']:
             return UserSerializer

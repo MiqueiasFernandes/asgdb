@@ -6,13 +6,15 @@ export const PAGE_SIZE = 5
 /*  GENERIC  */
 
 const list = (endpoint, query) => {
-    query = query || { page: 1 }
+    let query_default = {page: 1, ordering: ''}
+    query = Object.assign(query_default, query)
     return new Promise((resolve, reject) =>
         axios.get(endpoint, { params: query })
             .then(res => resolve({
+                page: query.page, 
+                ordering: query.ordering.split(","),
                 count: res.data.count,
                 results: res.data.results,
-                page: query.page,
                 pages: parseInt(res.data.count / PAGE_SIZE) + ((res.data.count % PAGE_SIZE) > 0 ? 1 : 0),
                 first: query.page === 1,
                 last: !res.data.next,
