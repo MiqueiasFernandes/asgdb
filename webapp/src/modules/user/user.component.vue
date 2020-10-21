@@ -15,7 +15,7 @@
   <div v-if="page">
     <Display lead>
       Has {{ actives }} active in
-      <strong>{{ page.count }} users</strong>.</Display
+      <strong>{{ page.total_items }} users</strong>.</Display
     >
     <table
       class="table table-sm table-striped table-hover align-middle"
@@ -23,10 +23,10 @@
     >
       <caption>
         List of users [{{
-          page.items.join("..")
+          page.current_items.join("..")
         }}] of
         {{
-          page.count
+          page.total_items
         }}
       </caption>
       <thead class="table-light">
@@ -34,7 +34,7 @@
           <th scope="col">
             <SortButton
               field="id"
-              :ordering="page.ordering"
+              :ordering="query.ordering"
               @sort="sort"
               label="Id"
             />
@@ -42,7 +42,7 @@
           <th class="text-center">
             <SortButton
               field="email"
-              :ordering="page.ordering"
+              :ordering="query.ordering"
               @sort="sort"
               label="Email"
             />
@@ -50,7 +50,7 @@
           <th>
             <SortButton
               field="registered_at"
-              :ordering="page.ordering"
+              :ordering="query.ordering"
               @sort="sort"
               label="Since"
             />
@@ -58,7 +58,7 @@
           <th class="text-center">
             <SortButton
               field="is_active"
-              :ordering="page.ordering"
+              :ordering="query.ordering"
               @sort="sort"
               label="Active"
             />
@@ -66,7 +66,7 @@
           <th class="text-center">
             <SortButton
               field="is_staff"
-              :ordering="page.ordering"
+              :ordering="query.ordering"
               @sort="sort"
               label="Admin"
             />
@@ -78,7 +78,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(user, index) in page.results" :key="user.id">
+        <tr v-for="(user, index) in page.items" :key="user.id">
           <th scope="row">
             <span v-tooltip:left="index + 1">{{ user.id }}</span>
           </th>
@@ -148,6 +148,10 @@
   <div v-else>
     <Display lead><Spiner class="mr-2" />Loading users ...</Display>
   </div>
+  <Alert v-if="error"
+    ><strong>ERRO.</strong> Falhou ao carregar a pagnia.
+    {{ error.message }}</Alert
+  >
 </template>
 <script>
 import auth_types from "@/modules/auth/auth.store.types";
@@ -166,13 +170,11 @@ export default {
     ...mapGetters({
       has_permission: auth_types.getters.has_permission,
     }),
-    current_page: (t) =>
-      parseInt(
-        t.$route.query.page ? t.$route.query.page : t.page ? t.page.page : 1
-      ),
   },
   data: () => ({
     page: null,
+    query: {},
+    error: null,
     loading: false,
     actives: "",
   }),
@@ -184,7 +186,9 @@ export default {
     },
   },
   mounted() {
-    this.loadPage(this.current_page);
+    this.query = Object.assign(this.query, this.$route.query) 
+    this.query.page = parseInt(this.query.page || 1)
+    this.loadPage();
     users.get_actives().then((r) => (this.actives = r.data.active));
   },
   methods: {
@@ -193,7 +197,29 @@ export default {
 
     sort(by) {
       this.loading = true;
-      users.list({ ordering: by }).then(this.load).catch(this.error);
+      this.query.ordering = by;
+      this.loadPage(1);
+    },
+
+    loadPage(page) {
+      this.loading = true;
+      this.query.page = page || this.query.page || 1;
+      users.list(this.query).then(this.loadResults).catch(this.onError);
+    },
+
+    loadResults(results) {
+      this.stop_loading_search();
+      this.loading = false;
+      this.error = null;
+      this.query = results.query;
+      this.page = results.page;
+      this.$router.push({ name: "User", query: this.query });
+    },
+
+    onError(e) {
+      this.stop_loading_search();
+      this.loading = false;
+      this.error = e;
     },
 
     start_search(query) {
@@ -210,24 +236,6 @@ export default {
 
     stop_loading_search() {
       this.$store.commit("search_loading", false);
-    },
-
-    loadPage(page_number) {
-      this.loading = true;
-      users.list({ page: page_number }).then(this.load).catch(this.error);
-    },
-
-    load(page) {
-      this.stop_loading_search();
-      this.loading = false;
-      this.page = page;
-      this.$router.push({ name: "User", query: { page: page.page } });
-    },
-
-    error() {
-      this.stop_loading_search();
-      this.loading = false;
-      alert("erro");
     },
 
     view(id) {

@@ -3,13 +3,14 @@ import auth_types from '@/modules/auth/auth.store.types'
 import user_types from '@/modules/user/user.store.types'
 
 
-export const verify_perm = (perms, router, route = '/') => {
+export const verify_perm = (perms, router, route = '/', to_admin = false) => {
     const needed_permissions = typeof (perms) === 'string' ? [perms] : perms
     const is_authenticated = store.getters[auth_types.getters.is_authenticated]
     const user_has_permissions = (p) => store.getters[auth_types.getters.has_permissions](p)
+    const is_admin = () => store.getters[auth_types.getters.is_admin]
 
     if (is_authenticated) {
-        if (user_has_permissions(needed_permissions)) router()
+        if ((!to_admin || is_admin()) && user_has_permissions(needed_permissions)) router()
         else router({ name: 'Unauthorized', query: { reason: route } })
     } else {
         router({ name: 'Login', query: { next: route } })
@@ -27,11 +28,11 @@ export const when_verified = (process) => {
 }
 
 export const authenticated_user = (to, from, next) => {
-    verify_perm(['USER'], next, to.path)
+    verify_perm([], next, to.path)
 }
 
 export const authenticated_admin = (to, from, next) => {
-    verify_perm(['ADMIN'], next, to.path)
+    verify_perm([], next, to.path, true)
 }
 
 export const has_permissions = (to, next, entity_permissions) => {
@@ -39,11 +40,11 @@ export const has_permissions = (to, next, entity_permissions) => {
 }
 
 export const admin_has_permissions = (to, next, entity_permissions) => {
-    verify_perm(['ADMIN', ...entity_permissions], next, to.path)
+    verify_perm(entity_permissions, next, to.path, true)
 }
 
 export const user_has_permissions = (to, next, entity_permissions) => {
-    verify_perm(['USER', ...entity_permissions], next, to.path)
+    verify_perm(entity_permissions, next, to.path)
 }
 
 export const has_view_permissions = (to, next, entity_permissions) => {
@@ -59,15 +60,15 @@ export const has_delete_permissions = (to, next, entity_permissions) => {
     verify_perm(entity_permissions.map(p => p.replace('/', '.delete_')), next, to.path)
 }
 
-const user_can_view = (to, next, entityes) => has_view_permissions(to, next, ['USER', ...entityes])
-const user_can_add = (to, next, entityes) => has_add_permissions(to, next, ['USER', ...entityes])
-const user_can_change = (to, next, entityes) => has_change_permissions(to, next, ['USER', ...entityes])
-const user_can_delete = (to, next, entityes) => has_delete_permissions(to, next, ['USER', ...entityes])
+const user_can_view = (to, next, entityes) => has_view_permissions(to, next, entityes)
+const user_can_add = (to, next, entityes) => has_add_permissions(to, next, entityes)
+const user_can_change = (to, next, entityes) => has_change_permissions(to, next, entityes)
+const user_can_delete = (to, next, entityes) => has_delete_permissions(to, next, entityes)
 
-const admin_can_view = (to, next, entityes) => has_view_permissions(to, next, ['ADMIN', ...entityes])
-const admin_can_add = (to, next, entityes) => has_add_permissions(to, next, ['ADMIN', ...entityes])
-const admin_can_change = (to, next, entityes) => has_change_permissions(to, next, ['ADMIN', ...entityes])
-const admin_can_delete = (to, next, entityes) => has_delete_permissions(to, next, ['ADMIN', ...entityes])
+const admin_can_view = (to, next, entityes) => has_view_permissions(to, next, entityes, true)
+const admin_can_add = (to, next, entityes) => has_add_permissions(to, next, entityes, true)
+const admin_can_change = (to, next, entityes) => has_change_permissions(to, next, entityes, true)
+const admin_can_delete = (to, next, entityes) => has_delete_permissions(to, next, entityes, true)
 
 export const short_name = (p) => p.replace(/.+_/, '')
 export const p2c = (p) => {

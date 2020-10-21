@@ -5,13 +5,13 @@ import user_types from '@/modules/user/user.store.types'
 
 const state = {
     is_authenticated: false,
+    is_admin: false,
     permissions: []
 }
 
 const getters = {
     is_authenticated: state => state.is_authenticated,
-    is_user: (state, getters) => getters.has_permission('USER'),
-    is_admin: (state, getters) => getters.has_permission('ADMIN'),
+    is_admin: state => state.is_authenticated && state.is_admin,
     has_permission: state => (permission) => state.permissions.includes(permission),
     has_permissions: state => (permissions) => permissions.every(p => state.permissions.includes(p))
 }
@@ -19,10 +19,12 @@ const getters = {
 const mutations = {
     [types.LOGIN](state, payload) {
         state.is_authenticated = true
-        state.permissions = payload.profile.permissions
+        state.is_admin = payload.profile.is_staff
+        state.permissions = payload.profile.permissions || []
     },
     [types.LOGOUT](state) {
         state.is_authenticated = false
+        state.is_admin = false
         state.permissions = []
     }
 }

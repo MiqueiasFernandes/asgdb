@@ -5,7 +5,6 @@ export const LOGOUT = 'LOGOUT'
 
 export const getters = {
     is_authenticated: `${_prefix_}/is_authenticated`,
-    is_user: `${_prefix_}/is_user`,
     is_admin: `${_prefix_}/is_admin`,
     has_permission: `${_prefix_}/has_permission`,
     has_permissions: `${_prefix_}/has_permissions`

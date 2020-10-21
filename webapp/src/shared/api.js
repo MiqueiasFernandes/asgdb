@@ -6,20 +6,21 @@ export const PAGE_SIZE = 5
 /*  GENERIC  */
 
 const list = (endpoint, query) => {
-    let query_default = {page: 1, ordering: ''}
-    query = Object.assign(query_default, query)
+    query = Object.assign({ page: 1 }, query)
+    Object.keys(query).forEach((key) => !query[key] && delete query[key]);
     return new Promise((resolve, reject) =>
         axios.get(endpoint, { params: query })
             .then(res => resolve({
-                page: query.page, 
-                ordering: query.ordering.split(","),
-                count: res.data.count,
-                results: res.data.results,
-                pages: parseInt(res.data.count / PAGE_SIZE) + ((res.data.count % PAGE_SIZE) > 0 ? 1 : 0),
-                first: query.page === 1,
-                last: !res.data.next,
-                size: res.data.results.length,
-                items: [((query.page - 1) * PAGE_SIZE) + 1, ((query.page - 1) * PAGE_SIZE) + res.data.results.length]
+                query,
+                page: {
+                    page: query.page,
+                    pages: parseInt(res.data.count / PAGE_SIZE) + ((res.data.count % PAGE_SIZE) > 0 ? 1 : 0),
+                    size: res.data.results.length,
+                    max_size: PAGE_SIZE,
+                    items: res.data.results,
+                    total_items: res.data.count,
+                    current_items: [((query.page - 1) * PAGE_SIZE) + 1, ((query.page - 1) * PAGE_SIZE) + res.data.results.length]
+                }
             }))
             .catch(reject)
     )
@@ -50,6 +51,7 @@ class Generic {
         this.create = (entity) => post(`${API}/${endpoint}`, entity)
         this.update = (id, entity) => put(`${API}/${endpoint}/${id}`, entity)
         this.remove = (id) => remove(`${API}/${endpoint}/${id}`)
+        this.page = { page: 1, ordering: '-id', count: 0, results: [], size: 0 }
     }
 }
 

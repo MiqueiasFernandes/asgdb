@@ -246,6 +246,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 os.remove(user.avatar.path)
             ## user.delete()
             user.is_active = False
+            user.save()
             return True
         except:
             return False
@@ -287,11 +288,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
             if user.exists():
                 user = user[0]
-
-                user.is_active = False
                 
                 if self.remove_user(user):
-                    user.save()
                     user.delete()
                     print('REMOVED USER', user.id, user.email)
                     return Response(status=204)
