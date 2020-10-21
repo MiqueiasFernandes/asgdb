@@ -14,8 +14,10 @@
   </Display>
   <div v-if="page">
     <Display lead>
-      Has {{ actives }} active in
-      <strong>{{ page.total_items }} users</strong>.</Display
+      Has {{ actives }} active in <strong>{{ page.total_items }} users</strong>.
+      <span v-if="query.search"
+        >(Há filtros de pesquisa apliados!)
+      </span></Display
     >
     <table
       class="table table-sm table-striped table-hover align-middle"
@@ -180,14 +182,12 @@ export default {
   }),
   watch: {
     search_query(query) {
-      if (query && query.trim().length > 0) {
-        this.start_search(query.trim());
-      }
+      this.search(query);
     },
   },
   mounted() {
-    this.query = Object.assign(this.query, this.$route.query) 
-    this.query.page = parseInt(this.query.page || 1)
+    this.query = Object.assign(this.query, this.$route.query);
+    this.query.page = parseInt(this.query.page || 1);
     this.loadPage();
     users.get_actives().then((r) => (this.actives = r.data.active));
   },
@@ -198,6 +198,16 @@ export default {
     sort(by) {
       this.loading = true;
       this.query.ordering = by;
+      this.loadPage(1);
+    },
+
+    search(query) {
+      if (query && query.trim().length > 0) {
+        this.query.search = query.trim();
+      } else {
+        delete this.query.search;
+      }
+      this.$store.commit("search_loading", true);
       this.loadPage(1);
     },
 
@@ -220,18 +230,6 @@ export default {
       this.stop_loading_search();
       this.loading = false;
       this.error = e;
-    },
-
-    start_search(query) {
-      this.$store.commit("search_loading", true);
-      console.log(query);
-      try {
-        const q = JSON.parse(query);
-        users.list(q).then(this.load);
-      } catch {
-        console.log(query);
-        this.stop_loading_search();
-      }
     },
 
     stop_loading_search() {
