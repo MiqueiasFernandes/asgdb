@@ -110,7 +110,7 @@ export default {
       center: t.center || (t.queue.length > 0 ? t.queue[0].center : false),
       scrool: t.scrool || (t.queue.length > 0 ? t.queue[0].scrool : false),
       static: t.static || (t.queue.length > 0 ? t.queue[0].static : false),
-      onClosed: t.queue.length > 0 ? t.queue[0].onClosed : () => {},
+      onClosed: t.queue.length > 0 && t.queue[0].onClosed ? t.queue[0].onClosed : null,
       sm: t.sm || (t.queue.length > 0 ? t.queue[0].sm : false),
       lg: t.lg || (t.queue.length > 0 ? t.queue[0].lg : false),
       btn_center:
@@ -127,7 +127,7 @@ export default {
     );
     this.$refs.modal.addEventListener("hidden.bs.modal", () => {
       this.$emit("close");
-      this.current.onClosed()
+      if (this.current.onClosed) this.current.onClosed()
       this.next();
     });
     if (this.global) {

@@ -5,12 +5,13 @@
       <Button
         success
         ico="plus"
-        class="float-right"
+        class="float-right ml-3"
         :disabled="!has_permission('users.add_user')"
       >
         New</Button
       >
     </router-link>
+    <FilterButton class="float-right ml-3" v-if="page" />
   </Display>
   <div v-if="page">
     <Display lead>
@@ -161,11 +162,13 @@ import { mapGetters } from "vuex";
 import { users } from "@/shared/api";
 import { short_name, p2c } from "@/shared/utils/permissions";
 import SortButton from "../../shared/generic_entity/SortButton";
+import FilterButton from "../../shared/generic_entity/FilterButton";
 
 export default {
   title: "User",
   components: {
     SortButton,
+    FilterButton,
   },
   computed: {
     ...mapGetters(["search_query"]),
