@@ -7,9 +7,11 @@ import { _prefix_ as user_prefix } from '../modules/user/user.store.types'
 import UserStore from '../modules/user/user.store'
 
 const global = {
-  state: { query: '', loading: false },
+  state: { query: '', loading: false, placeholder: 'Search all' },
   getters: {
     search_query: state => state.query,
+    search_placeholder: state => state.placeholder,
+    search_all: state => state.placeholder === 'Search all',
     search_loading: state => state.loading
   },
   mutations: {
@@ -18,6 +20,12 @@ const global = {
     },
     search: (s, p) => {
       s.query = p
+    },
+    search_register: (s, p) => {
+      s.placeholder = p
+    },
+    search_unregister: (s) => {
+      s.placeholder = 'Search all'
     },
     reset_search: (s) => {
       s.query = ''

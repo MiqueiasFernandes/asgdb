@@ -66,7 +66,7 @@
 
         <div class="form-check form-switch col-5">
           <input
-            v-model="user.is_admin"
+            v-model="user.is_staff"
             class="form-check-input"
             type="checkbox"
             id="admin"
@@ -87,8 +87,9 @@
         </div>
         <div class="col-md-4">
           <select v-model="entity" class="form-select" :disabled="loading">
-            <option selected value="users/user,">All</option>
+            <option selected value="users/user,entity/organism">All</option>
             <option value="users/user">User</option>
+            <option value="entity/organism">Organism</option>
           </select>
         </div>
         <div class="col-md-2 text-center">

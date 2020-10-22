@@ -4,10 +4,14 @@ import HomeRouter from '@/modules/home/home.router'
 import AuthRouter from '@/modules/auth/auth.router'
 import UserRouter from '@/modules/user/user.router'
 
+import EntityRouter from '@/modules/entity/entity.router.js'
+import Organism from '@/models/Organism'
+
 const routes = [
     ...HomeRouter,
     ...AuthRouter,
     ...UserRouter,
+    ...EntityRouter.buildRouter(Organism),
     {
         path: '/401',
         name: 'Unauthorized',

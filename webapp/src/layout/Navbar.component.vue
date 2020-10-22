@@ -42,15 +42,15 @@
               <Icon name="house" sm fill /> <strong>Home</strong>
             </router-link>
           </li>
-          <!-- <li class="nav-item">
+          <li v-for="entity in entityes" :key="entity.config.base_name" class="nav-item">
             <router-link
-              to="/user"
+              :to="entity.config.base_name"
               class="nav-link d-flex align-items-center lead"
               active-class="active"
             >
-              <Icon name="people" sm fill /> <strong>Users</strong>
+              <Icon :name="entity.config.ico" sm /> <strong>{{ entity.config.plural }}</strong>
             </router-link>
-          </li> -->
+          </li>
         </ul>
         <div class="d-flex justify-content-evenly">
           <div class="input-group mr-3" style="width: 20rem">
@@ -58,7 +58,7 @@
               v-model="query"
               class="form-control"
               type="search"
-              placeholder="Search"
+              :placeholder="search_placeholder"
               aria-label="Search"
               :disabled="search_loading"
               @keydown.enter="search"
@@ -88,6 +88,11 @@
 <script>
 import user_types from "../modules/user/user.store.types";
 import { mapGetters } from "vuex";
+import Organism from '@/models/Organism'
+
+const ENTITYTES = [
+  Organism
+]
 
 export default {
   emits: ["toggle", "login"],
@@ -101,11 +106,14 @@ export default {
     ...mapGetters({
       current_user: user_types.getters.current_user,
     }),
-    ...mapGetters(["search_loading", "search_query"]),
+    ...mapGetters(["search_loading", "search_query", "search_all", "search_placeholder"]),
+    entityes: () => ENTITYTES
   },
   watch: {
-    search_query(q) {
-      this.query = q;
+    search_query() {
+      if (this.search_all) {
+        alert('Metodo não implementado!')
+      }
     },
   },
   data: () => ({ query: "" }),

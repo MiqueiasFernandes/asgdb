@@ -266,7 +266,7 @@ class UserViewSet(viewsets.ModelViewSet):
             if user.exists():
                 user = user[0]
                 user.is_active = request.data.get('is_active', user.is_active)
-                user.is_staff = request.data.get('is_admin', user.is_staff)
+                user.is_staff = request.data.get('is_staff', user.is_staff)
                 user.first_name = request.data.get('first_name', user.first_name)
                 user.last_name = request.data.get('last_name', user.last_name)
                 user.email = request.data.get('email', user.email)

@@ -207,6 +207,10 @@ export default {
     this.query.page = parseInt(this.query.page || 1);
     this.loadPage();
     users.get_actives().then((r) => (this.actives = r.data.active));
+    this.$store.commit("search_register", "Search users");
+  },
+  unmounted() {
+    this.$store.commit("search_unregister");
   },
   methods: {
     short_name: short_name,
