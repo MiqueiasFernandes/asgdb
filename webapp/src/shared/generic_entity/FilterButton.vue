@@ -205,6 +205,7 @@ export default {
             {}
           )
       );
+      this.$refs.dialog.hide();
     },
   },
 };

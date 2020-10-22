@@ -193,6 +193,7 @@ export default {
     query: {},
     error: null,
     loading: false,
+    no_load: false,
     actives: "",
     filtered_fields: filtered_fields
   }),
@@ -212,6 +213,9 @@ export default {
     p2c: p2c,
 
     reset() {
+      this.no_load = true;
+      this.$store.commit("reset_search");
+      this.no_load = false;
       this.query = {}
       this.loadPage()
     },
@@ -223,6 +227,9 @@ export default {
     },
 
     search(query) {
+      if (this.no_load) {
+        return;
+      }
       if (query && query.trim().length > 0) {
         this.query.search = query.trim();
       } else {

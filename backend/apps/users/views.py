@@ -17,12 +17,10 @@ from apps.users.models import User
 from apps.users.serializers import UserSerializer, UserWriteSerializer
 from apps.users.permissions import CustomDjangoModelPermission
 
-from url_filter.integrations.drf import DjangoFilterBackend
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser&CustomDjangoModelPermission]
-    ##filter_backends = [DjangoFilterBackend]
 
     ## Filter: https://www.django-rest-framework.org/api-guide/filtering/
     ##         https://github.com/miki725/django-url-filter
