@@ -11,15 +11,18 @@
         New</Button
       >
     </router-link>
-    <FilterButton class="float-right ml-3" v-if="page" />
   </Display>
   <div v-if="page">
-    <Display lead>
-      Has {{ actives }} active in <strong>{{ page.total_items }} users</strong>.
-      <span v-if="query.search"
-        >(Há filtros de pesquisa apliados!)
-      </span></Display
-    >
+    <div class="row mb-3">
+      <Display class="col-auto" lead>
+        Has {{ actives }} active in
+        <strong>{{ page.total_items }} users</strong>.
+        <span v-if="has_filters"
+          >(Há filtros de pesquisa aplicados! click <a href="" class="link" @click.prevent="reset">here to remove</a>)
+        </span></Display
+      >
+      <div class="col-auto"><FilterButton @filter="filter" :fields="filtered_fields"/></div>
+    </div>
     <table
       class="table table-sm table-striped table-hover align-middle"
       :class="loading ? 'loading' : ''"
@@ -164,6 +167,14 @@ import { short_name, p2c } from "@/shared/utils/permissions";
 import SortButton from "../../shared/generic_entity/SortButton";
 import FilterButton from "../../shared/generic_entity/FilterButton";
 
+
+const filtered_fields = [
+      { label: "Id", type: Number, value: "id" },
+      { label: "Email", type: String, value: "email" },
+      { label: "Admin", type: Boolean, value: "is_staff" },
+      { label: "Data", type: Date, value: "registered_at" },
+    ]
+
 export default {
   title: "User",
   components: {
@@ -175,6 +186,7 @@ export default {
     ...mapGetters({
       has_permission: auth_types.getters.has_permission,
     }),
+    has_filters: (t) => Object.keys(t.query).filter(x => !['ordering', 'page'].includes(x)).length
   },
   data: () => ({
     page: null,
@@ -182,6 +194,7 @@ export default {
     error: null,
     loading: false,
     actives: "",
+    filtered_fields: filtered_fields
   }),
   watch: {
     search_query(query) {
@@ -198,6 +211,11 @@ export default {
     short_name: short_name,
     p2c: p2c,
 
+    reset() {
+      this.query = {}
+      this.loadPage()
+    },
+
     sort(by) {
       this.loading = true;
       this.query.ordering = by;
@@ -211,6 +229,11 @@ export default {
         delete this.query.search;
       }
       this.$store.commit("search_loading", true);
+      this.loadPage(1);
+    },
+
+    filter(filters) {
+      this.query = filters
       this.loadPage(1);
     },
 

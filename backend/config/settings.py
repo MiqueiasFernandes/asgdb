@@ -229,7 +229,8 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.FileUploadParser'
     ],
     'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend', 
+        #'django_filters.rest_framework.DjangoFilterBackend', 
+        'url_filter.integrations.drf.DjangoFilterBackend',
         'rest_framework.filters.OrderingFilter',
         'rest_framework.filters.SearchFilter'
     ],
