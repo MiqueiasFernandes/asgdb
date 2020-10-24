@@ -62,7 +62,7 @@
       <Button secondary ico="arrow-clockwise" @click="filters = []"
         >Reset</Button
       >
-      <Button ico="check2" @click="filterNow">Filter</Button>
+      <Button ico="check2" @click="filterNow" :disabled="filters.length < 1">Filter</Button>
     </template>
   </Dialog>
 </template>

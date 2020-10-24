@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <tttle>Lista de usuarios</tttle>
+    </head>
+    <body>
+        <h1>Há {{ users_size }} usuario(s) cadastrados no sistema.</h1>
+        <ul>
+            {% for user in users %}
+            <li>
+                <strong>{{ user.short_name | capfirst }}</strong> 
+                => {{ user.email }}
+                {% if user.is_staff %} &#9889; {% endif %}
+                {% if not user.is_active %} &#10071; {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        <p>
+            <a href="/#/user">Ver os usuarios</a>
+        </p>
+    </body>
+</html>

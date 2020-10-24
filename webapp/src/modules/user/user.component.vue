@@ -15,7 +15,7 @@
   <div v-if="page">
     <div class="row mb-3">
       <Display class="col-auto" lead>
-        Has {{ actives }} active in
+        Has {{ actives }} active users. Showing
         <strong>{{ page.total_items }} users</strong>.
         <span v-if="has_filters"
           >(Há filtros de pesquisa aplicados! click <a href="" class="link" @click.prevent="reset">here to remove</a>)
@@ -171,8 +171,9 @@ import FilterButton from "../../shared/generic_entity/FilterButton";
 const filtered_fields = [
       { label: "Id", type: Number, value: "id" },
       { label: "Email", type: String, value: "email" },
-      { label: "Admin", type: Boolean, value: "is_staff" },
-      { label: "Data", type: Date, value: "registered_at" },
+      { label: "Is Active", type: Boolean, value: "is_active" },
+      { label: "Is Admin", type: Boolean, value: "is_staff" },
+      { label: "Registered Data", type: Date, value: "registered_at" },
     ]
 
 export default {

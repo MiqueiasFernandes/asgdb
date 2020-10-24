@@ -302,6 +302,12 @@ class UserViewSet(viewsets.ModelViewSet):
         ## not if user_id
         return Response(data={ 'error': 'O id deve ser fornecido.'})
 
-     
 
-        
+
+from django.shortcuts import render     
+
+def users(request):
+    users = User.objects.all()
+    context = {'users': users, 'users_size': len(users)}
+    return render(request, 'users.html', context)
+
