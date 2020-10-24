@@ -87,9 +87,9 @@
         </div>
         <div class="col-md-4">
           <select v-model="entity" class="form-select" :disabled="loading">
-            <option selected value="users/user,entity/organism">All</option>
+            <option selected :value="'users/user,' + entity_permissions.map(e => e.p).join(',')">All</option>
             <option value="users/user">User</option>
-            <option value="entity/organism">Organism</option>
+            <option v-for="ent in entity_permissions" :key="ent.p" :value="ent.p">{{ent.n}}</option>
           </select>
         </div>
         <div class="col-md-2 text-center">
@@ -153,6 +153,28 @@ import { users } from "@/shared/api";
 import go from "@/shared/utils/go.to.router";
 import { short_name, p2c } from "@/shared/utils/permissions";
 
+import Annotation from "@/models/Annotation";
+import Condition from "@/models/Condition";
+import Domain from "@/models/Domain";
+import Expression from "@/models/Expression";
+import Feature from "@/models/Feature";
+import Gene from "@/models/Gene";
+import Isoform from "@/models/Isoform";
+import Organism from "@/models/Organism";
+import Protein from "@/models/Protein";
+
+const ENTITYTES = [
+  Annotation,
+  Condition,
+  Domain,
+  Expression,
+  Feature,
+  Gene,
+  Isoform,
+  Organism,
+  Protein,
+].map((e) => new e());
+
 export default {
   props: ["userId"],
   computed: {
@@ -174,6 +196,7 @@ export default {
       ((t.user.permissions.length + t.backup.permissions.length < 1) || (
       (t.user.permissions.every((x) => t.backup.permissions.includes(x)) &&
       t.backup.permissions.every((x) => t.user.permissions.includes(x))))),
+    entity_permissions: () => ENTITYTES.map(e => ({n: e.human_name, p: e.permission}))
   },
   data: () => ({
     user: null,

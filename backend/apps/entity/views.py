@@ -68,7 +68,7 @@ class DomainViewSet(viewsets.ModelViewSet):
     serializer_class = DomainSerializer
 
     filter_fields = ['id', 'start', 'end', 'description']  
-    search_fields = ['id', ] 
+    search_fields = ['id', 'description' ] 
     ordering = ['-id'] 
     ordering_fields = ['id','start', 'end', 'description' ]  
 

@@ -15,7 +15,7 @@
       @click="closeSidebar"
     >
       <Dialog global />
-      <router-view />
+      <router-view :key="$route.name"/>
     </div>
     <Footer ref="footer" @click="closeSidebar" />
   </div>

@@ -162,16 +162,26 @@ export default {
     },
   },
   mounted() {
-    this.query = Object.assign(this.query, this.$route.query);
-    this.query.page = parseInt(this.query.page || 1);
-    this.filtered_fields = this.entity.fields.filter(f => f.in_filter);
-    this.$store.commit("search_register", `Search ${this.entity.plural_lower}`);
-    this.loadPage();
+    this.init();
   },
   unmounted() {
     this.$store.commit("search_unregister");
   },
   methods: {
+    init() {
+      this.page = null;
+      this.error = null;
+      this.loading = false;
+      this.query = Object.assign(this.query, this.$route.query);
+      this.query.page = parseInt(this.query.page || 1);
+      this.filtered_fields = this.entity.fields.filter((f) => f.in_filter);
+      this.$store.commit(
+        "search_register",
+        `Search ${this.entity.plural_lower}`
+      );
+      this.loadPage();
+    },
+
     reset() {
       this.$store.commit("reset_search");
       this.query = {};

@@ -42,20 +42,31 @@
               <Icon name="house" sm fill /> <strong>Home</strong>
             </router-link>
           </li>
-          <li
+
+
+          <li class="nav-item  align-items-center lead dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+            Entity
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li
             v-for="entity in entityes"
             :key="entity.base_name"
-            class="nav-item"
+            class="dropdown-item"
           >
             <router-link
               :to="`/${entity.base_name}`"
-              class="nav-link d-flex align-items-center lead"
               active-class="active"
             >
               <Icon :name="entity.ico" sm />
               <strong>{{ entity.plural }}</strong>
             </router-link>
           </li>
+          </ul>
+        </li>
+
+
+          
         </ul>
         <div class="d-flex justify-content-evenly">
           <div class="input-group mr-3" style="width: 20rem">
@@ -93,9 +104,27 @@
 <script>
 import user_types from "../modules/user/user.store.types";
 import { mapGetters } from "vuex";
+import Annotation from "@/models/Annotation";
+import Condition from "@/models/Condition";
+import Domain from "@/models/Domain";
+import Expression from "@/models/Expression";
+import Feature from "@/models/Feature";
+import Gene from "@/models/Gene";
+import Isoform from "@/models/Isoform";
 import Organism from "@/models/Organism";
+import Protein from "@/models/Protein";
 
-const ENTITYTES = [new Organism()];
+const ENTITYTES = [
+  Annotation,
+  Condition,
+  Domain,
+  Expression,
+  Feature,
+  Gene,
+  Isoform,
+  Organism,
+  Protein,
+].map((e) => new e());
 
 export default {
   emits: ["toggle", "login"],
