@@ -11,7 +11,7 @@ const routes = [
     ...HomeRouter,
     ...AuthRouter,
     ...UserRouter,
-    ...EntityRouter.buildRouter(Organism),
+    ...EntityRouter.buildRouter(new Organism()),
     {
         path: '/401',
         name: 'Unauthorized',

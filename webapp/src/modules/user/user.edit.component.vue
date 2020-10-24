@@ -6,7 +6,7 @@
       <Badge class="ml-3" round>{{ userId }}</Badge>
     </template>
     <template v-if="user" #body>
-      <form class="row g-3 align-items-center" @submit.prevent="save">
+      <form class="row g-3 align-items-center" @submit.prevent="complete">
         <div class="col-md-4">
           <label for="first_name" class="form-label"
             ><strong>Name</strong></label
@@ -78,7 +78,7 @@
         <label class="col-md-3">Permissions</label>
         <div class="col-md-3">
           <select v-model="mode" class="form-select" :disabled="loading">
-            <option value="view,add,change,delete">All</option>
+            <option selected value="view,add,change,delete">All</option>
             <option value="view">View</option>
             <option value="add">Add</option>
             <option value="change">Change</option>
@@ -118,6 +118,7 @@
     <template #footer>
       <Button
         secondary
+        type="button"
         ico="arrow-clockwise"
         @click="reset"
         :disabled="no_changed || loading"
@@ -127,6 +128,7 @@
         v-if="mode_edit"
         ico="check2"
         :loading="loading"
+         type="submit"
         @click="save"
         :disabled="no_changed || loading"
         >Salve</Button
@@ -134,6 +136,7 @@
       <Button
         v-if="mode_create"
         ico="check2"
+         type="submit"
         success
         :loading="loading"
         @click="create"
@@ -222,12 +225,6 @@ export default {
         users
           .view(this.userId)
           .then((response) => {
-            response.data.is_admin = response.data.permissions.includes(
-              "ADMIN"
-            );
-            response.data.permissions = response.data.permissions.filter((p) =>
-              p.includes("_")
-            );
             this.backup = response.data;
             this.user = JSON.parse(JSON.stringify(response.data));
             this.$refs.dialog.show();
@@ -317,6 +314,15 @@ export default {
           }
         })
         .catch((e) => this.onError(e.message));
+    },
+
+    complete() {
+      if (this.mode_create) {
+        this.create()
+      }
+      if (this.mode_edit) {
+        this.save()
+      }
     },
 
     save() {

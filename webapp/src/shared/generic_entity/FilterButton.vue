@@ -177,8 +177,8 @@ export default {
       if (
         this.filters.some(
           (f) =>
-            f.field.value === this.selected_field.value &&
-            f.filter.value === this.selected_filter.value
+            f.field.id === this.selected_field.id &&
+            f.filter.id === this.selected_filter.id
         )
       ) {
         return;
@@ -199,7 +199,7 @@ export default {
       this.$emit(
         "filter",
         this.filters
-          .map((f) => [f.field.value, ...f.filter.value.split("="), f.input])
+          .map((f) => [f.field.id, ...f.filter.value.split("="), f.input])
           .reduce(
             (o, key) => ({ ...o, [key[0] + key[1]]: key.slice(2).join("") }),
             {}

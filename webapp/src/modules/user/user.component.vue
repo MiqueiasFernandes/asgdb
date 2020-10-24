@@ -18,10 +18,13 @@
         Has {{ actives }} active users. Showing
         <strong>{{ page.total_items }} users</strong>.
         <span v-if="has_filters"
-          >(Há filtros de pesquisa aplicados! click <a href="" class="link" @click.prevent="reset">here to remove</a>)
+          >(Há filtros de pesquisa aplicados! click
+          <a href="" class="link" @click.prevent="reset">here to remove</a>)
         </span></Display
       >
-      <div class="col-auto"><FilterButton @filter="filter" :fields="filtered_fields"/></div>
+      <div class="col-auto">
+        <FilterButton @filter="filter" :fields="filtered_fields" />
+      </div>
     </div>
     <table
       class="table table-sm table-striped table-hover align-middle"
@@ -84,9 +87,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(user, index) in page.items" :key="user.id">
+        <tr v-for="{ user, item_id } in page.items" :key="user.id">
           <th scope="row">
-            <span v-tooltip:left="index + 1">{{ user.id }}</span>
+            <span v-tooltip:left="item_id">{{ user.id }}</span>
           </th>
           <td class="text-center">
             <span v-tooltip="user.full_name">{{ user.email }}</span>
@@ -167,14 +170,13 @@ import { short_name, p2c } from "@/shared/utils/permissions";
 import SortButton from "../../shared/generic_entity/SortButton";
 import FilterButton from "../../shared/generic_entity/FilterButton";
 
-
 const filtered_fields = [
-      { label: "Id", type: Number, value: "id" },
-      { label: "Email", type: String, value: "email" },
-      { label: "Is Active", type: Boolean, value: "is_active" },
-      { label: "Is Admin", type: Boolean, value: "is_staff" },
-      { label: "Registered Data", type: Date, value: "registered_at" },
-    ]
+  { label: "Id", type: Number, id: "id" },
+  { label: "Email", type: String, id: "email" },
+  { label: "Is Active", type: Boolean, id: "is_active" },
+  { label: "Is Admin", type: Boolean, id: "is_staff" },
+  { label: "Registered Data", type: Date, id: "registered_at" },
+];
 
 export default {
   title: "User",
@@ -187,16 +189,17 @@ export default {
     ...mapGetters({
       has_permission: auth_types.getters.has_permission,
     }),
-    has_filters: (t) => Object.keys(t.query).filter(x => !['ordering', 'page'].includes(x)).length
+    has_filters: (t) =>
+      Object.keys(t.query).filter((x) => !["ordering", "page"].includes(x))
+        .length,
   },
   data: () => ({
     page: null,
     query: {},
     error: null,
     loading: false,
-    no_load: false,
     actives: "",
-    filtered_fields: filtered_fields
+    filtered_fields: filtered_fields,
   }),
   watch: {
     search_query(query) {
@@ -206,9 +209,9 @@ export default {
   mounted() {
     this.query = Object.assign(this.query, this.$route.query);
     this.query.page = parseInt(this.query.page || 1);
-    this.loadPage();
     users.get_actives().then((r) => (this.actives = r.data.active));
     this.$store.commit("search_register", "Search users");
+    this.loadPage();
   },
   unmounted() {
     this.$store.commit("search_unregister");
@@ -218,11 +221,9 @@ export default {
     p2c: p2c,
 
     reset() {
-      this.no_load = true;
       this.$store.commit("reset_search");
-      this.no_load = false;
-      this.query = {}
-      this.loadPage()
+      this.query = {};
+      this.loadPage();
     },
 
     sort(by) {
@@ -232,20 +233,14 @@ export default {
     },
 
     search(query) {
-      if (this.no_load) {
-        return;
-      }
-      if (query && query.trim().length > 0) {
-        this.query.search = query.trim();
-      } else {
-        delete this.query.search;
-      }
+      if (!query || query.trim().length < 1) return;
+      this.query.search = query.trim();
       this.$store.commit("search_loading", true);
       this.loadPage(1);
     },
 
     filter(filters) {
-      this.query = filters
+      this.query = filters;
       this.loadPage(1);
     },
 

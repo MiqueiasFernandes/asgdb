@@ -23,6 +23,7 @@ const global = {
     },
     search_register: (s, p) => {
       s.placeholder = p
+      s.query = null
     },
     search_unregister: (s) => {
       s.placeholder = 'Search all'

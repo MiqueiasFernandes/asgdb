@@ -1,32 +1,14 @@
-import api from '@/shared/api'
+import base from './BaseModel'
 
-const BASE_NAME = 'organism'
-const HUMAN_NAME = 'Organism'
-
-const config = {
-    base_name: BASE_NAME,
-    human_name: HUMAN_NAME,
-    permission: `entity/${BASE_NAME}`,
-    plural: `${HUMAN_NAME}s`,
-    ico: "gem"
+export default class Organism extends base.Model {
+    constructor() {
+        super('organism')
+        this.fields = [
+            new base.NumberField('Id').header().noForm(),
+            new base.StringField('Taxonomy').colCenter(),
+            new base.StringField('Scientific Name', 'name'),
+            new base.StringField('Popular name', 'aka'),
+            new base.StringField('Lineage').noTable()
+        ]
+    }
 }
-
-const entity_api = new api.Generic(BASE_NAME)
-
-class Organism {
-    fields =  [
-        {
-            label: 'Id',
-            type: Number
-        }
-    ]
-}
-
-const instance = new Organism()
-
-export default {
-    config,
-    model: instance,
-    api: entity_api
-}
-
