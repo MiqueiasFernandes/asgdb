@@ -6,7 +6,7 @@ export default class Organism extends base.Model {
         this.fields = [
             new base.NumberField('Id').header().noForm(),
             new base.StringField('Taxonomy').colCenter(),
-            new base.StringField('Scientific Name', 'name'),
+            new base.StringField('Scientific Name', 'name').noFilter(),
             new base.StringField('Popular name', 'aka'),
             new base.StringField('Lineage').noTable()
         ]

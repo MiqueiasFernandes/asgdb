@@ -38,6 +38,7 @@ class Field {
         this.in_table = true
         this.in_form = true
         this.in_filter = true
+        this.in_sort = true
         this.center = false;
         this.default = undefined;
     }
@@ -64,6 +65,11 @@ class Field {
 
     noFilter() {
         this.in_filter = false;
+        return this;
+    }
+    
+    noSort() {
+        this.in_sort = false;
         return this;
     }
 

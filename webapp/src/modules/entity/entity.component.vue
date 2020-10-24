@@ -47,7 +47,7 @@
               :class="field.center ? 'text-center' : ''"
             >
               <SortButton
-              :disabled="field.in_filter"
+                :disabled="!field.in_sort"
                 :field="field.id"
                 :ordering="query.ordering"
                 @sort="sort"
@@ -164,7 +164,7 @@ export default {
   mounted() {
     this.query = Object.assign(this.query, this.$route.query);
     this.query.page = parseInt(this.query.page || 1);
-    this.filtered_fields = this.entity.fields;
+    this.filtered_fields = this.entity.fields.filter(f => f.in_filter);
     this.$store.commit("search_register", `Search ${this.entity.plural_lower}`);
     this.loadPage();
   },

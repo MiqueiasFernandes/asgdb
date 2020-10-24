@@ -3,7 +3,7 @@
     <slot
       ><strong>{{ label }}</strong></slot
     >
-    <Icon sm :name="icon" />
+    <Icon v-if="!disabled" sm :name="icon" />
   </Button>
 </template>
 <script>
@@ -13,6 +13,7 @@ export default {
     field: String,
     label: String,
     ordering: String,
+    disabled: Boolean,
   },
   computed: {
     sorting: (t) => {
@@ -38,6 +39,9 @@ export default {
   },
   methods: {
     sort() {
+      if (this.disabled) {
+        return;
+      }
       let new_order = [...this.sorting];
       if (this.in_sort_asc) {
         new_order = new_order.filter((o) => o !== this.field);
