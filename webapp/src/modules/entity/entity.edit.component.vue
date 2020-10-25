@@ -29,6 +29,33 @@
               />
             </div>
           </template>
+
+          <div
+            v-for="relation in entity.relations"
+            :key="relation.model.base_name"
+          >
+            <label :for="relation.model.base_name" class="form-label">
+              <strong>{{ relation.label || relation.human_name }}</strong>
+            </label>
+            <select 
+            :key="sel_key"
+            :disabled="!entity.relations_to_use[relation.model.base_name]"
+              v-model="instance[relation.field]"
+              class="form-select"
+              :id="relation.model.base_name"
+            >
+              <option
+                v-for="item in entity.relations_to_use[
+                  relation.model.base_name
+                ]"
+                :key="item.id"
+                :value="item.id" 
+              >
+                {{ item.label }}
+              </option>
+            </select>
+          </div>
+
           <Button type="submit" hidden>sub</Button>
         </form>
       </template>
@@ -83,12 +110,13 @@ export default {
     },
   },
 
-  data: () => ({ instance: null, backup: null, loading: false }),
+  data: () => ({ instance: null, backup: null, loading: false, sel_key: 0 }),
 
   methods: {
     loadEntity() {
       this.instance = null;
       this.backup = null;
+      this.entity.loadRelations(() => this.sel_key++);
       if (this.mode_create) {
         this.instance = this.entity.fabric();
         this.backup = this.entity.fabric();
@@ -127,7 +155,7 @@ export default {
     },
 
     create() {
-      this.loading = true;
+     this.loading = true;
       this.entity.api
         .create(this.instance)
         .then((u) => {
@@ -136,7 +164,7 @@ export default {
             "Sucesso!",
             "success"
           );
-          this.$refs.dialog.hide();
+         this.$refs.dialog.hide();
         })
         .catch((e) => this.onError(e.message));
     },

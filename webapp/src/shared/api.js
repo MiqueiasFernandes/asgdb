@@ -47,6 +47,7 @@ class Generic {
     constructor(endpoint, data_name = 'item') {
         this.endpoint = endpoint
         this.list = (query) => list(`${API}/${endpoint}`, query, data_name)
+        this.list_all = () => axios.get(`${API}/${endpoint}/list_all`).then(res => res.data.items)
         this.view = (id) => get(`${API}/${endpoint}`, id)
         this.create = (entity) => post(`${API}/${endpoint}`, entity)
         this.update = (entity, id) => put(`${API}/${endpoint}/${id || entity.id}`, entity)

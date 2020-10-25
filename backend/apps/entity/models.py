@@ -17,8 +17,8 @@ class Annotation(models.Model):
 
 class Gene(models.Model):
     gene_id = models.CharField(max_length=20, unique=True)
-    name = models.CharField(max_length=50, blank=True, null=True)
-    family = models.CharField(max_length=50, blank=True, null=True, unique=True)
+    name = models.CharField(max_length=50, null=True)
+    family = models.CharField(max_length=50, null=True)
 
     organism = models.ForeignKey(Organism, on_delete=models.CASCADE)
     annotations = models.ManyToManyField(Annotation)
@@ -83,6 +83,6 @@ class Feature(models.Model):
     feature = models.CharField(max_length=1, choices=FEATURE_TYPE, blank=False, null=False)
     sequence = models.TextField(blank=True, null=True)
 
-    gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
+    gene = models.OneToOneField(Gene, on_delete=models.CASCADE)
     isoform = models.ForeignKey(Isoform, on_delete=models.CASCADE)
 

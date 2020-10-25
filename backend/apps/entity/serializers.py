@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from apps.entity.models import *
 
+def setId(data, field):
+    data[field] = data[field].id
 
 class OrganismSerializer(serializers.ModelSerializer):
 
@@ -8,17 +10,30 @@ class OrganismSerializer(serializers.ModelSerializer):
         model = Organism
         fields = ['id', 'taxonomy', 'name', 'aka', 'lineage']
 
+class OrganismBasicSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Organism
+        fields = ['id', 'name']
+
 class AnnotationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Annotation
         fields = ['id', 'entry', 'name', 'db', 'link']
 
+
 class GeneSerializer(serializers.ModelSerializer):
+    organism_id = serializers.PrimaryKeyRelatedField(queryset=Organism.objects)
 
     class Meta:
         model = Gene
-        fields = ['id', 'gene_id', 'name', 'family']
+        fields = ['id', 'gene_id', 'name', 'family', 'organism_id']
+    
+    def create(self, validated_data):
+        setId(validated_data, 'organism_id')
+        gene = Gene.objects.create(**validated_data)
+        return gene
 
 class ProteinSerializer(serializers.ModelSerializer):
 

@@ -10,6 +10,8 @@ class Model {
         this.plural_lower = this.plural.toLowerCase()
         this.ico = ico || 'asterisk'
         this.fields = []
+        this.relations = []
+        this.relations_to_use = {}
 
         this.api = new api.Generic(base_name)
 
@@ -21,11 +23,37 @@ class Model {
     }
 
     compare(a, b) {
-        return (!a && !b) || (a && b && this.fields.every((f) => a[f.id] === b[f.id]))
+        return (!a && !b) || 
+        (a && b && 
+            this.fields.every((f) => a[f.id] === b[f.id]) && 
+            this.relations.every((r) => a[r.field] === b[r.field]))
     }
 
     fabric(base) {
-        return this.fields.reduce((o, key) => ({ ...o, [key.id]: base ? base[key.id] : key.default }), {})
+        const newObj = this
+        .fields
+        .reduce((o, key) => ({ ...o, [key.id]: base ? base[key.id] : key.default }), {})
+
+        this.relations.forEach(r => newObj[r.field] = base ? base[r.field] : undefined)
+        return newObj
+    }
+
+    loadRelations(onEnd) {
+        let complete = 0
+        this.relations.forEach((relation) => {
+            
+            relation.model.api.list_all().then(res => {
+                if (res.length > 0) {
+                    const oth = Object.keys(res[0]).join(',').replace('id', '').replace(',', '')
+                    this.relations_to_use[relation.model.base_name] = res
+                        .map(e => ({ id: e.id, label: e[oth] }))
+                } else {
+                    this.relations_to_use[relation.model.base_name] = []
+                }
+                complete++;
+                if (complete === this.relations.length && onEnd) onEnd()
+            })
+        })
     }
 }
 
@@ -67,7 +95,7 @@ class Field {
         this.in_filter = false;
         return this;
     }
-    
+
     noSort() {
         this.in_sort = false;
         return this;
@@ -91,7 +119,15 @@ class NumberField extends Field {
     }
 }
 
+class ForeignKey {
+    constructor(to, field, label) {
+        this.model = to
+        this.field = field || `${to.base_name}_id`
+        this.label = label || this.field
+    }
+}
+
 export default {
-    Model, StringField, NumberField
+    Model, StringField, NumberField, ForeignKey
 }
 

@@ -1,4 +1,7 @@
 from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
 from apps.users.permissions import CustomDjangoModelPermission
 from .serializers import *
 from .models import *
@@ -15,6 +18,11 @@ class OrganismViewSet(viewsets.ModelViewSet):
     search_fields = ['id','taxonomy', 'name', 'aka', 'lineage' ] 
     ordering = ['-id'] 
     ordering_fields = ['id', 'taxonomy', 'name', 'aka', 'lineage']  
+
+
+    @action(methods=['GET'], detail=False)
+    def list_all(self, request):
+        return Response(data={'items': [OrganismBasicSerializer(i).data for i in self.queryset]})
 
 
 class AnnotationViewSet(viewsets.ModelViewSet):

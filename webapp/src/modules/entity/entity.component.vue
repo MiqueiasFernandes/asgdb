@@ -55,6 +55,7 @@
               />
             </th>
           </template>
+          <th v-for="relation in entity.relations" :key="relation.label">{{relation.label}}</th>
           <th></th>
         </tr>
       </thead>
@@ -77,6 +78,10 @@
               <span>{{ item[field.id] }}</span>
             </td>
           </template>
+           <td v-for="relation in entity.relations" :key="relation.label">
+             <router-link
+              :to="`/${relation.model.base_name}/${item[relation.field]}`"> {{item[relation.field]}} </router-link>
+             </td>
           <td class="text-right">
             <div class="btn-group" role="group">
               <Button @click="view(item.id)" sm ico="eye-fill"> View </Button>
