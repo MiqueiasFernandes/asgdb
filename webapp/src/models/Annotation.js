@@ -5,7 +5,7 @@ export default class Annotation extends base.Model {
         super('annotation')
         this.fields = [
             new base.NumberField('Id').header().noForm(),
-            new base.StringField('Entry'),
+            new base.StringField('Entry').asBaseLabel(),
             new base.StringField('Name'),
             new base.StringField('Data Base', 'db'),
         ]

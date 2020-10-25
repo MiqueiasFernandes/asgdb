@@ -6,6 +6,10 @@ from apps.users.permissions import CustomDjangoModelPermission
 from .serializers import *
 from .models import *
 
+
+def isWriter(context):
+    return not context.action in ['list', 'retrieve']
+
 class OrganismViewSet(viewsets.ModelViewSet):
     """
     A simple ViewSet for REST access to create, update and remove Organisms.
@@ -38,6 +42,9 @@ class AnnotationViewSet(viewsets.ModelViewSet):
     ordering = ['-id'] 
     ordering_fields = ['id','entry', 'name', 'db' ]  
 
+    @action(methods=['GET'], detail=False)
+    def list_all(self, request):
+        return Response(data={'items': [AnnotationBasicSerializer(i).data for i in self.queryset]})
 
 class GeneViewSet(viewsets.ModelViewSet):
     """
@@ -48,9 +55,16 @@ class GeneViewSet(viewsets.ModelViewSet):
     serializer_class = GeneSerializer
 
     filter_fields = ['id', 'gene_id', 'name', 'family']  
-    search_fields = ['id', 'gene_id', 'name', 'family'] 
+    search_fields = ['id', 'gene_id', 'name', 'family', 'organism__name', 'annotations__entry', 'annotations__name'] 
     ordering = ['-id'] 
-    ordering_fields = ['id','gene_id', 'name', 'family' ]  
+    ordering_fields = ['id','gene_id', 'name', 'family', 'organism__name']
+
+    def get_serializer_class(self):
+        return GeneWriteSerializer if isWriter(self) else GeneSerializer
+
+    @action(methods=['GET'], detail=False)
+    def list_all(self, request):
+        return Response(data={'items': [GeneBasicSerializer(i).data for i in self.queryset]})
 
 
 class ProteinViewSet(viewsets.ModelViewSet):
@@ -90,9 +104,16 @@ class ConditionViewSet(viewsets.ModelViewSet):
     serializer_class = ConditionSerializer
 
     filter_fields = ['id', 'name','label','replicate','reference','ontology' ]  
-    search_fields = ['id', 'name','label','replicate','reference','ontology'] 
+    search_fields = ['id', 'name','label','replicate','reference','ontology', 'organism__name'] 
     ordering = ['-id'] 
-    ordering_fields = ['id','name','label','replicate','reference','ontology' ]  
+    ordering_fields = ['id','name','label','replicate','reference','ontology', 'organism__name' ] 
+
+    def get_serializer_class(self):
+        return ConditionWriteSerializer if isWriter(self) else ConditionSerializer
+
+    @action(methods=['GET'], detail=False)
+    def list_all(self, request):
+        return Response(data={'items': [ConditionBasicSerializer(i).data for i in self.queryset]}) 
 
 
 
@@ -105,9 +126,16 @@ class ExpressionViewSet(viewsets.ModelViewSet):
     serializer_class = ExpressionSerializer
 
     filter_fields = ['id', 'count', 'RPKM', 'note']  
-    search_fields = ['id', 'note'] 
+    search_fields = ['id', 'note', 'condition__name'] 
     ordering = ['-id'] 
-    ordering_fields = ['id','count', 'RPKM' ]  
+    ordering_fields = ['id','count', 'RPKM', 'condition__name']  
+
+    def get_serializer_class(self):
+        return ExpressionWriteSerializer if isWriter(self) else ExpressionSerializer
+
+    @action(methods=['GET'], detail=False)
+    def list_all(self, request):
+        return Response(data={'items': [ExpressionBasicSerializer(i).data for i in self.queryset]}) 
 
 
 class IsoformViewSet(viewsets.ModelViewSet):
@@ -119,9 +147,16 @@ class IsoformViewSet(viewsets.ModelViewSet):
     serializer_class = IsoformSerializer
 
     filter_fields = ['id', 'isoform_id', 'splicing', 'psi']  
-    search_fields = ['id', 'isoform_id', 'splicing'] 
+    search_fields = ['id', 'isoform_id', 'splicing', 'gene__gene_id', 'gene__gene_name'] 
     ordering = ['-id'] 
-    ordering_fields = ['id', 'isoform_id', 'splicing', 'psi']  
+    ordering_fields = ['id', 'isoform_id', 'splicing', 'psi', 'gene__gene_id']  
+
+    def get_serializer_class(self):
+        return IsoformWriteSerializer if isWriter(self) else IsoformSerializer
+
+    @action(methods=['GET'], detail=False)
+    def list_all(self, request):
+        return Response(data={'items': [IsoformBasicSerializer(i).data for i in self.queryset]})
 
 
 class FeatureViewSet(viewsets.ModelViewSet):

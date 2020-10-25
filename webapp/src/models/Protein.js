@@ -5,7 +5,7 @@ export default class Protein extends base.Model {
         super('protein')
         this.fields = [
             new base.NumberField('Id').noForm().noTable().noFilter(),
-            new base.StringField('Id', 'protein_id').header(),
+            new base.StringField('Id', 'protein_id').header().asBaseLabel(),
             new base.StringField('Name'),
             new base.StringField('Family'),
         ]

@@ -66,9 +66,9 @@ class Isoform(models.Model):
     psi = models.DecimalField(max_digits=19, decimal_places=10)
 
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
-    annotations = models.ManyToManyField(Annotation)
     expression = models.ForeignKey(Expression, on_delete=models.CASCADE)
     protein = models.OneToOneField(Protein, on_delete=models.CASCADE)
+    annotations = models.ManyToManyField(Annotation)
 
 
 class Feature(models.Model):

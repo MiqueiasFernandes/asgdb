@@ -30,24 +30,21 @@
             </div>
           </template>
 
-          <div
-            v-for="relation in entity.relations"
-            :key="relation.model.base_name"
-          >
-            <label :for="relation.model.base_name" class="form-label">
-              <strong>{{ relation.label || relation.human_name }}</strong>
+          <div v-for="relation in entity.relations" :key="relation.human">
+            <label :for="relation.name" class="form-label">
+              <strong>{{ relation.human }}</strong>
             </label>
             <select 
             :key="sel_key"
-            :disabled="!entity.relations_to_use[relation.model.base_name]"
-              v-model="instance[relation.field]"
+            :disabled="!entity.relations_to_use[relation.name]"
+              v-model="instance[relation.write]"
               class="form-select"
-              :id="relation.model.base_name"
+              :id="relation.name"
+              :multiple="relation.multiple"
             >
+            <option v-if="relation.multiple" @click="instance[relation.write] = []"></option>
               <option
-                v-for="item in entity.relations_to_use[
-                  relation.model.base_name
-                ]"
+                v-for="item in entity.relations_to_use[relation.name]"
                 :key="item.id"
                 :value="item.id" 
               >
@@ -118,8 +115,8 @@ export default {
       this.backup = null;
       this.entity.loadRelations(() => this.sel_key++);
       if (this.mode_create) {
-        this.instance = this.entity.fabric();
-        this.backup = this.entity.fabric();
+        this.instance = this.entity.fabric(null, true);
+        this.backup = this.entity.fabric(null, true);
         setTimeout(() => this.$refs.dialog.show(), 500);
       } else {
         this.loading = true;
@@ -128,7 +125,7 @@ export default {
           .then((response) => {
             this.loading = false;
             this.backup = response.data;
-            this.instance = this.entity.fabric(response.data);
+            this.instance = this.entity.fabric(response.data, true);
             this.$refs.dialog.show();
           })
           .catch(this.onError);
@@ -136,7 +133,7 @@ export default {
     },
 
     reset() {
-      this.instance = this.entity.fabric(this.backup);
+      this.instance = this.entity.fabric(this.backup, true);
     },
 
     save() {

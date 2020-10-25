@@ -55,7 +55,19 @@
               />
             </th>
           </template>
-          <th v-for="relation in entity.relations" :key="relation.label">{{relation.label}}</th>
+          <th
+            v-for="relation in entity.relations"
+            :key="relation.human"
+            :class="relation.center ? 'text-center' : ''"
+          >
+            <SortButton
+              :disabled="!relation.sort"
+              :field="relation.sort"
+              :ordering="query.ordering"
+              @sort="sort"
+              :label="relation.human"
+            />
+          </th>
           <th></th>
         </tr>
       </thead>
@@ -78,10 +90,29 @@
               <span>{{ item[field.id] }}</span>
             </td>
           </template>
-           <td v-for="relation in entity.relations" :key="relation.label">
-             <router-link
-              :to="`/${relation.model.base_name}/${item[relation.field]}`"> {{item[relation.field]}} </router-link>
-             </td>
+          <td
+            v-for="relation in entity.relations"
+            :key="relation.human"
+            :class="relation.center ? 'text-center' : ''"
+          >
+            <!-- MANY TO MANY -->
+            <div class="d-flex justify-content-evenly" v-if="relation.multiple">
+              <router-link
+                v-for="rel in item[relation.read]"
+                :key="rel.id"
+                :to="`/${relation.model.base_name}/${rel.id}`"
+              >
+                {{ rel[relation.label] }}
+              </router-link>
+            </div>
+            <!-- FOREIGN KEY -->
+            <router-link
+              v-if="!relation.multiple"
+              :to="`/${relation.model.base_name}/${item[relation.read].id}`"
+            >
+              {{ item[relation.read][relation.label] }}
+            </router-link>
+          </td>
           <td class="text-right">
             <div class="btn-group" role="group">
               <Button @click="view(item.id)" sm ico="eye-fill"> View </Button>
