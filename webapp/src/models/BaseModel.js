@@ -29,7 +29,7 @@ class Model {
                 this.fields.every((f) => a[f.id] === b[f.id]) &&
                 this.relations.filter(r => !r.multiple).every((r) => a[r.write] === b[r.write]) &&
                 this.relations.filter(r => r.multiple).every((r) => arrayComp(a[r.write], b[r.write]))
-                )
+            )
     }
 
     fabric(base, write) {
@@ -37,7 +37,7 @@ class Model {
             .fields
             .reduce((o, key) => ({ ...o, [key.id]: base ? base[key.id] : key.default }), {})
         if (write) {
-            this.relations.forEach(r => { 
+            this.relations.forEach(r => {
                 if (r.multiple) {
                     newObj[r.write] = base ? base[r.read].map(i => i.id) : []
                 } else {
@@ -78,6 +78,8 @@ class Field {
         this.center = false;
         this.default = undefined;
         this.base_label = false;
+        this.required = true
+        this.empty = null
     }
 
     value(val) {
@@ -101,7 +103,7 @@ class Field {
     }
 
     noFilter() {
-        this.in_filter = false;
+        this.in_filter = null;
         return this;
     }
 
@@ -119,17 +121,39 @@ class Field {
         this.base_label = true;
         return this;
     }
+
+    optional() {
+        this.required = false;
+        return this;
+    }
 }
 
 class StringField extends Field {
     constructor(label, id) {
         super(label, id, String)
+        this.text_area = false;
+    }
+
+    long() {
+        this.text_area = true;
+        return this;
     }
 }
 
 class NumberField extends Field {
     constructor(label, id) {
         super(label, id, Number)
+    }
+}
+
+class OptionField extends Field {
+    constructor(label, options, id) {
+        super(label, id, Object)
+        this.options = options
+        this.reverse = Object
+            .keys(options)
+            .map(k => ([options[k], k]))
+            .reduce((o, k) => ({ ...o, [k[0]]: k[1] }), {})
     }
 }
 
@@ -143,6 +167,8 @@ class ForeignKey {
         this.human = to.human_name || human
         this.sort = sort || `${this.name}__${this.label}`
         this.center = true
+        this.required = true
+        this.empty = null
     }
 
     noSort() {
@@ -151,7 +177,13 @@ class ForeignKey {
     }
 
     noCenter() {
-        this.center = false
+        this.center = false;
+        return this;
+    }
+
+    optional() {
+        this.required = false;
+        return this;
     }
 }
 
@@ -161,10 +193,12 @@ class ManyToMany extends ForeignKey {
         this.multiple = true
         this.name = to.plural_lower
         this.noSort()
+        this.optional()
+        this.empty = []
     }
 }
 
 export default {
-    Model, StringField, NumberField, ForeignKey, ManyToMany
+    Model, StringField, NumberField, OptionField, ForeignKey, ManyToMany
 }
 

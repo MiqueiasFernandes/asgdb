@@ -34,8 +34,8 @@ class Protein(models.Model):
 
 
 class Domain(models.Model):
-    start = models.PositiveIntegerField(blank=False, null=False)
-    end = models.PositiveIntegerField(blank=False, null=False)
+    start = models.PositiveIntegerField()
+    end = models.PositiveIntegerField()
     description =  models.CharField(max_length=50, unique=True)
 
     protein = models.ForeignKey(Protein, on_delete=models.CASCADE)
@@ -43,9 +43,9 @@ class Domain(models.Model):
 
 
 class Condition(models.Model):
-    name = models.CharField(max_length=50, blank=True, null=True)
+    name = models.CharField(max_length=50)
     label = models.CharField(max_length=50, blank=True, null=True)
-    replicate = models.CharField(max_length=50, blank=True, null=True)
+    replicate = models.CharField(max_length=50)
     reference = models.CharField(max_length=500, blank=True, null=True)
     ontology = models.CharField(max_length=500, blank=True, null=True)
 
@@ -68,21 +68,20 @@ class Isoform(models.Model):
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
     expression = models.ForeignKey(Expression, on_delete=models.CASCADE)
     protein = models.OneToOneField(Protein, on_delete=models.CASCADE)
-    annotations = models.ManyToManyField(Annotation)
 
 
 class Feature(models.Model):
     STRAND_TYPE = [(0, 'Sense'), (1, 'Anti-Sense')]
     FEATURE_TYPE = [('G', 'Gene'), ('M', 'mRNA'), ('E', 'Exon'), ('I', 'Isoform'), ('C', 'CDS')]
     feature_id = models.CharField(max_length=20, unique=True)
-    name = models.CharField(max_length=20, blank=True, null=True)
+    name = models.CharField(max_length=20)
     contig = models.CharField(max_length=20)
-    start = models.PositiveIntegerField(blank=False, null=False)
-    end = models.PositiveIntegerField(blank=False, null=False)
-    strand = models.PositiveIntegerField(choices=STRAND_TYPE, blank=False, null=False)
-    feature = models.CharField(max_length=1, choices=FEATURE_TYPE, blank=False, null=False)
+    start = models.PositiveIntegerField()
+    end = models.PositiveIntegerField()
+    strand = models.PositiveIntegerField(choices=STRAND_TYPE)
+    feature = models.CharField(max_length=1, choices=FEATURE_TYPE)
     sequence = models.TextField(blank=True, null=True)
 
     gene = models.OneToOneField(Gene, on_delete=models.CASCADE)
-    isoform = models.ForeignKey(Isoform, on_delete=models.CASCADE)
+    isoform = models.ForeignKey(Isoform, on_delete=models.CASCADE, null=True)
 

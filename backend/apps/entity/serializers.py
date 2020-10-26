@@ -74,20 +74,53 @@ class ProteinBasicSerializer(serializers.ModelSerializer):
         fields = ['id', 'protein_id']
 
 class ProteinSerializer(serializers.ModelSerializer):
+    annotations = AnnotationBasicSerializer(many=True)
 
     class Meta:
         model = Protein
-        fields = ['id', 'protein_id', 'name', 'family', 'sequence']
+        fields = ['id', 'protein_id', 'name', 'family', 'sequence', 'annotations']
+
+class ProteinWriteSerializer(serializers.ModelSerializer):
+    annotations = serializers.PrimaryKeyRelatedField(queryset=Annotation.objects, many=True)
+
+    class Meta:
+        model = Protein
+        fields = ['id', 'protein_id', 'name', 'family', 'sequence', 'annotations']
+
+    def create(self, validated_data):
+        annotations = validated_data['annotations']
+        del validated_data['annotations']
+        protein = Protein.objects.create(**validated_data)
+        protein.annotations.set(annotations)
+        return protein
 
 
 ################## DOMAIN
 
 class DomainSerializer(serializers.ModelSerializer):
+    protein = ProteinBasicSerializer()
+    annotations = AnnotationBasicSerializer(many=True)
 
     class Meta:
         model = Domain
-        fields = ['id', 'start', 'end', 'description']
+        fields = ['id', 'start', 'end', 'description', 'protein', 'annotations']
 
+
+class DomainWriteSerializer(serializers.ModelSerializer):
+    protein_id = serializers.PrimaryKeyRelatedField(queryset=Protein.objects)
+    annotations = serializers.PrimaryKeyRelatedField(queryset=Annotation.objects, many=True)
+
+    class Meta:
+        model = Domain
+        fields = ['id', 'start', 'end', 'description', 'protein_id', 'annotations']
+    
+    def create(self, validated_data):
+        validated_data['protein_id'] = validated_data['protein_id'].id
+        annotations = validated_data['annotations']
+        del validated_data['annotations']
+        domain = Domain.objects.create(**validated_data)
+        domain.annotations.set(annotations)
+        return domain
 
 
 
@@ -157,38 +190,50 @@ class IsoformSerializer(serializers.ModelSerializer):
     gene = GeneBasicSerializer()
     expression = ExpressionBasicSerializer()
     protein = ProteinBasicSerializer()
-    annotations = AnnotationBasicSerializer(many=True)
 
     class Meta:
         model = Isoform
-        fields = ['id', 'isoform_id', 'splicing', 'psi', 'gene', 'expression', 'protein', 'annotations']
+        fields = ['id', 'isoform_id', 'splicing', 'psi', 'gene', 'expression', 'protein']
 
 class IsoformWriteSerializer(serializers.ModelSerializer):
     gene_id = serializers.PrimaryKeyRelatedField(queryset=Gene.objects)
     expression_id = serializers.PrimaryKeyRelatedField(queryset=Expression.objects)
     protein_id = serializers.PrimaryKeyRelatedField(queryset=Protein.objects)
-    annotations = serializers.PrimaryKeyRelatedField(queryset=Annotation.objects, many=True)
 
     class Meta:
         model = Isoform
-        fields = ['id', 'isoform_id', 'splicing', 'psi', 'gene_id', 'expression_id', 'protein_id', 'annotations']
+        fields = ['id', 'isoform_id', 'splicing', 'psi', 'gene_id', 'expression_id', 'protein_id']
 
     def create(self, validated_data):
         validated_data['gene_id'] = validated_data['gene_id'].id
         validated_data['expression_id'] = validated_data['expression_id'].id
         validated_data['protein_id'] = validated_data['protein_id'].id
-        annotations = validated_data['annotations']
-        del validated_data['annotations']
-        isoform = Isoform.objects.create(**validated_data)
-        isoform.annotations.set(annotations)
-        return isoform
+        return Isoform.objects.create(**validated_data)
 
+
+################## FEATURE
 
 class FeatureSerializer(serializers.ModelSerializer):
+    gene = GeneBasicSerializer()
+    isoform = IsoformBasicSerializer()
 
     class Meta:
         model = Feature
-        fields = ['id', 'feature_id', 'name', 'contig', 'start', 'end', 'strand', 'feature', 'sequence']
+        fields = ['id', 'feature_id', 'name', 'contig', 'start', 'end', 'strand', 'feature', 'sequence', 'gene', 'isoform']
 
+
+class FeatureWriteSerializer(serializers.ModelSerializer):
+    gene_id = serializers.PrimaryKeyRelatedField(queryset=Gene.objects)
+    isoform_id = serializers.PrimaryKeyRelatedField(queryset=Isoform.objects, allow_null=True)
+
+    class Meta:
+        model = Feature
+        fields = ['id', 'feature_id', 'name', 'contig', 'start', 'end', 'strand', 'feature', 'sequence', 'gene_id', 'isoform_id']
+
+    def create(self, validated_data):
+        validated_data['gene_id'] = validated_data['gene_id'].id
+        if 'isoform_id' in validated_data and not validated_data['isoform_id'] is None:
+            validated_data['isoform_id'] = validated_data['isoform_id'].id
+        return Feature.objects.create(**validated_data)
 
  

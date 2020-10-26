@@ -130,6 +130,8 @@ export default {
     colapse_admin() {
       let collapse = this.as_collapse("Administration");
       collapse.buttons.push(this.as_button("Users", "people", this.act_users));
+      collapse.buttons.push(this.as_button("Admin", "tools", () => window.location.href = `/admin`, 'info'));
+      collapse.buttons.push(this.as_button("API", "braces", () => window.location.href = `/api`, 'secondary'));
       return collapse;
     },
 

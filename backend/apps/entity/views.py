@@ -76,10 +76,16 @@ class ProteinViewSet(viewsets.ModelViewSet):
     serializer_class = ProteinSerializer
 
     filter_fields = ['id', 'protein_id', 'name', 'family']  
-    search_fields = ['id', 'protein_id', 'name', 'family'] 
+    search_fields = ['id', 'protein_id', 'name', 'family', 'annotations__entry', 'annotations__name'] 
     ordering = ['-id'] 
     ordering_fields = ['id','protein_id', 'name', 'family' ]  
 
+    @action(methods=['GET'], detail=False)
+    def list_all(self, request):
+        return Response(data={'items': [ProteinBasicSerializer(i).data for i in self.queryset]})
+
+    def get_serializer_class(self):
+        return ProteinWriteSerializer if isWriter(self) else ProteinSerializer
 
 class DomainViewSet(viewsets.ModelViewSet):
     """
@@ -90,9 +96,12 @@ class DomainViewSet(viewsets.ModelViewSet):
     serializer_class = DomainSerializer
 
     filter_fields = ['id', 'start', 'end', 'description']  
-    search_fields = ['id', 'description' ] 
+    search_fields = ['id', 'description', 'protein__protein_id', 'protein__protein_name', 'annotations__entry', 'annotations__name' ] 
     ordering = ['-id'] 
-    ordering_fields = ['id','start', 'end', 'description' ]  
+    ordering_fields = ['id','start', 'end', 'description', 'protein__protein_id' ]  
+
+    def get_serializer_class(self):
+        return DomainWriteSerializer if isWriter(self) else DomainSerializer
 
 
 class ConditionViewSet(viewsets.ModelViewSet):
@@ -147,9 +156,9 @@ class IsoformViewSet(viewsets.ModelViewSet):
     serializer_class = IsoformSerializer
 
     filter_fields = ['id', 'isoform_id', 'splicing', 'psi']  
-    search_fields = ['id', 'isoform_id', 'splicing', 'gene__gene_id', 'gene__gene_name'] 
+    search_fields = ['id', 'isoform_id', 'splicing', 'gene__gene_id', 'gene__name', 'expression__note', 'protein__protein_id', 'protein__name'] 
     ordering = ['-id'] 
-    ordering_fields = ['id', 'isoform_id', 'splicing', 'psi', 'gene__gene_id']  
+    ordering_fields = ['id', 'isoform_id', 'splicing', 'psi', 'gene__gene_id', 'expression__note', 'protein__protein_id']  
 
     def get_serializer_class(self):
         return IsoformWriteSerializer if isWriter(self) else IsoformSerializer
@@ -167,9 +176,10 @@ class FeatureViewSet(viewsets.ModelViewSet):
     permission_classes = [CustomDjangoModelPermission]
     serializer_class = FeatureSerializer
 
-    filter_fields = ['id', 'feature_id', 'name', 'contig', 'start', 'end', 'feature']  
-    search_fields = ['id', 'feature_id', 'name', 'contig'] 
+    filter_fields = ['id', 'feature_id', 'name', 'contig', 'start', 'strand', 'end', 'feature']  
+    search_fields = ['id', 'feature_id', 'name', 'contig', 'gene__gene_id', 'gene__name', 'isoform__isoform_id'] 
     ordering = ['-id'] 
-    ordering_fields = ['id', 'feature_id', 'name', 'contig', 'start', 'end', 'feature', 'strand']  
+    ordering_fields = ['id', 'feature_id', 'name', 'contig', 'start', 'end', 'feature', 'strand', 'gene__gene_id', 'isoform__isoform_id']  
 
-    
+    def get_serializer_class(self):
+        return FeatureWriteSerializer if isWriter(self) else FeatureSerializer

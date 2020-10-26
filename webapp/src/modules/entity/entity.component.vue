@@ -87,7 +87,10 @@
               :key="field.id"
               :class="field.center ? 'text-center' : ''"
             >
-              <span>{{ item[field.id] }}</span>
+              <span v-if="field.type === Object">{{
+                field.reverse[item[field.id]]
+              }}</span>
+              <span v-else>{{ item[field.id] }}</span>
             </td>
           </template>
           <td
@@ -95,23 +98,28 @@
             :key="relation.human"
             :class="relation.center ? 'text-center' : ''"
           >
-            <!-- MANY TO MANY -->
-            <div class="d-flex justify-content-evenly" v-if="relation.multiple">
-              <router-link
-                v-for="rel in item[relation.read]"
-                :key="rel.id"
-                :to="`/${relation.model.base_name}/${rel.id}`"
+            <template v-if="item[relation.read]">
+              <!-- MANY TO MANY -->
+              <div
+                class="d-flex justify-content-evenly"
+                v-if="relation.multiple"
               >
-                {{ rel[relation.label] }}
+                <router-link
+                  v-for="rel in item[relation.read]"
+                  :key="rel.id"
+                  :to="`/${relation.model.base_name}/${rel.id}`"
+                >
+                  {{ rel[relation.label] }}
+                </router-link>
+              </div>
+              <!-- FOREIGN KEY -->
+              <router-link
+                v-if="!relation.multiple"
+                :to="`/${relation.model.base_name}/${item[relation.read].id}`"
+              >
+                {{ item[relation.read][relation.label] }}
               </router-link>
-            </div>
-            <!-- FOREIGN KEY -->
-            <router-link
-              v-if="!relation.multiple"
-              :to="`/${relation.model.base_name}/${item[relation.read].id}`"
-            >
-              {{ item[relation.read][relation.label] }}
-            </router-link>
+            </template>
           </td>
           <td class="text-right">
             <div class="btn-group" role="group">

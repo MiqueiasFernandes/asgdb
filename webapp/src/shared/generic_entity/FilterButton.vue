@@ -62,7 +62,9 @@
       <Button secondary ico="arrow-clockwise" @click="filters = []"
         >Reset</Button
       >
-      <Button ico="check2" @click="filterNow" :disabled="filters.length < 1">Filter</Button>
+      <Button ico="check2" @click="filterNow" :disabled="filters.length < 1"
+        >Filter</Button
+      >
     </template>
   </Dialog>
 </template>
@@ -141,6 +143,13 @@ export default {
           return [eq, inList, inRange, lt, gt, year];
         case Boolean:
           return [yes, no];
+        case Object: {
+          const opts = t.selected_field.options;
+          return Object.keys(opts).map((k) => ({
+            label: k,
+            value: `=${opts[k]}`,
+          }));
+        }
       }
       return [eq, ...extras];
     },
@@ -170,7 +179,7 @@ export default {
     addFilter() {
       if (
         !this.selected_field ||
-        (this.selected_field.type !== Boolean && !this.filter_input)
+        (![Boolean, Object].includes(this.selected_field.type)  && !this.filter_input)
       ) {
         return;
       }
