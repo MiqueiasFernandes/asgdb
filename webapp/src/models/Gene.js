@@ -8,8 +8,8 @@ export default class Gene extends base.Model {
         this.fields = [
             new base.NumberField('Id').noForm().noTable().noFilter(),
             new base.StringField('Id', 'gene_id').header().asBaseLabel(),
-            new base.StringField('Name'),
-            new base.StringField('Family'),
+            new base.StringField('Name').optional(),
+            new base.StringField('Family').optional(),
         ]
         this.relations = [
             new base.ForeignKey(new Organism()),

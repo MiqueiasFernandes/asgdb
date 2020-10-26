@@ -2,10 +2,9 @@ from django.db import models
 
 class Organism(models.Model):
     taxonomy = models.PositiveIntegerField(blank=False, null=False, unique=True)
-    name = models.CharField(max_length=20, blank=True, null=True)
+    name = models.CharField(max_length=50)
     aka = models.CharField(max_length=20, blank=True, null=True)
     lineage = models.CharField(max_length=500, blank=True, null=True)
-    avatar = models.ImageField(verbose_name='Organism Logo', blank=True, upload_to='organism')
 
 
 class Annotation(models.Model):
@@ -62,12 +61,12 @@ class Expression(models.Model):
 
 class Isoform(models.Model):
     isoform_id = models.CharField(max_length=20, unique=True)
-    splicing = models.CharField(max_length=20, blank=True, null=True)
+    splicing = models.CharField(max_length=20)
     psi = models.DecimalField(max_digits=19, decimal_places=10)
 
     gene = models.ForeignKey(Gene, on_delete=models.CASCADE)
-    expression = models.ForeignKey(Expression, on_delete=models.CASCADE)
-    protein = models.OneToOneField(Protein, on_delete=models.CASCADE)
+    protein = models.OneToOneField(Protein, on_delete=models.CASCADE, null=True)
+    expression = models.ForeignKey(Expression, on_delete=models.CASCADE, null=True)
 
 
 class Feature(models.Model):

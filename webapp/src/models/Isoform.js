@@ -14,8 +14,8 @@ export default class Isoform extends base.Model {
         ]
         this.relations = [
             new base.ForeignKey(new Gene()),
-            new base.ForeignKey(new Expression()),
-            new base.ForeignKey(new Protein())
+            new base.ForeignKey(new Expression()).optional(),
+            new base.ForeignKey(new Protein()).optional()
         ]
     }
 }
