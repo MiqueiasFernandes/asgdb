@@ -14,6 +14,7 @@ import Badge from './Badge.component.vue'
 import Pagination from './Pagination.component.vue'
 import ProgressBar from './ProgressBar.component.vue'
 import File from './File.component.vue'
+import Tabs from './Tabs.component.vue'
 
 // install: npm i bootstrap@next bootstrap-icons
 // usage:   main.js => `.use(boostrap)`
@@ -35,7 +36,7 @@ import File from './File.component.vue'
 // Dropdowns    OK
 // List group   CSS
 // Modal        OK
-// Navs         CSS
+// Navs         ~
 // Navbar       OK
 // Pagination   OK
 // Popovers     OK
@@ -56,6 +57,9 @@ export default {
             title: choose(props, 'title_size', '4'),
             subtitle: choose(props, 'subtitle_size', '6'),
         }
+
+        // Tabs
+        app.component("Tabs", Tabs)
 
         //Icon
         app.component("Icon", Icon)

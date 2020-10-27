@@ -3,6 +3,8 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeRouter from '@/modules/home/home.router'
 import AuthRouter from '@/modules/auth/auth.router'
 import UserRouter from '@/modules/user/user.router'
+import AnaliseRouter from '@/modules/analise/analise.router'
+import BrowseRouter from '@/modules/browse/browse.router'
 
 import EntityRouter from '@/modules/entity/entity.router.js'
 import Annotation from '@/models/Annotation'
@@ -14,11 +16,13 @@ import Gene from '@/models/Gene'
 import Isoform from '@/models/Isoform'
 import Organism from '@/models/Organism'
 import Protein from '@/models/Protein'
- 
+
 const routes = [
     ...HomeRouter,
     ...AuthRouter,
     ...UserRouter,
+    ...AnaliseRouter,
+    ...BrowseRouter,
     ...EntityRouter.buildRouter(new Annotation()),
     ...EntityRouter.buildRouter(new Condition()),
     ...EntityRouter.buildRouter(new Domain()),

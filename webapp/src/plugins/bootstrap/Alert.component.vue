@@ -8,6 +8,7 @@
   >
     <slot></slot>
     <button
+    v-if="!noclose"
       type="button"
       class="btn-close"
       aria-label="Close"
@@ -27,6 +28,7 @@ export default {
     primary: Boolean,
     danger: Boolean,
     hidden: Boolean,
+    noclose: Boolean
   },
   computed: {
     alert_color: (t) => {

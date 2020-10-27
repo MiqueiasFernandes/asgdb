@@ -2,15 +2,18 @@
   <div v-if="current_user">
     <Display ico="gear">Profile</Display>
     <Display class="mb-5" lead>
-      Atualize seu <strong>perfil</strong> em sua conta.
+      <div class="row">
+      <div class="col-5">Atualize seu <strong>perfil</strong> em sua conta.</div>
+      <div class="col-6 text-right">
       <Badge
         v-for="perm in current_user.permissions || []"
         :key="perm"
         :color="p2c(perm)"
-        class="float-right mr-1"
+        class="mr-1"
         round
-        >{{ short_name(perm) }}</Badge
-      >
+        >{{ short_name(perm) }}</Badge>
+      </div>
+      </div>
     </Display>
 
     <Alert hidden ref="alert"

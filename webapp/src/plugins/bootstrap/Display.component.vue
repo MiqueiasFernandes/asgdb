@@ -4,7 +4,7 @@
       <Icon :name="ico" class="icon-lead" v-if="ico" /><slot></slot>
     </p>
   </div>
-  <div v-else :class="!subtitle && stylized ? 'stylized' : ''">
+  <div v-else>
     <h1 :class="classObj">
       <Icon
         :class="subtitle ? 'icon-subtitle' : 'icon-title'"
@@ -20,12 +20,12 @@ export default {
     lead: Boolean,
     subtitle: Boolean,
     ico: String,
-    stylized: Boolean,
+    size: Number
   },
   computed: {
     classObj: (t) =>
       `display-${
-        t.subtitle ? t.$bootstrap_conf.subtitle : t.$bootstrap_conf.title
+        t.size ? t.size : t.subtitle ? t.$bootstrap_conf.subtitle : t.$bootstrap_conf.title
       }`,
   },
 };

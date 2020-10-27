@@ -33,20 +33,47 @@
         id="navbarSupportedContent"
       >
         <ul class="navbar-nav mr-auto mb-2 mb-lg-0">
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <router-link
               to="/"
               class="nav-link d-flex align-items-center lead"
               active-class="active"
             >
-              <Icon name="house" sm fill /> <strong>Home</strong>
+              <Icon name="house" sm /> <strong>Home</strong>
             </router-link>
+          </li> -->
+          <li class="nav-item">
+            <router-link
+              to="/analise"
+              class="nav-link d-flex align-items-center lead"
+              active-class="active"
+            >
+              <Icon name="bootstrap-reboot" sm /> <strong>Analise</strong>
+            </router-link>
+          </li>
+          
+          <li class="nav-item">
+            <router-link
+              to="/browse"
+              class="nav-link d-flex align-items-center lead"
+              active-class="active"
+            >
+              <Icon name="compass" sm /> <strong>Browse</strong>
+            </router-link>
+          </li>
+
+          <li class="nav-item">
+            <a :href="api"
+              class="nav-link d-flex align-items-center lead"
+            >
+              <Icon name="plug" sm /> <strong>API</strong>
+            </a>
           </li>
 
 
           <li class="nav-item  align-items-center lead dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
-            Entity
+           <Icon name="puzzle" sm />  <strong>Entity</strong>
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li
@@ -145,6 +172,7 @@ export default {
       "search_placeholder",
     ]),
     entityes: () => ENTITYTES,
+    api: () => `http://${window ? window.location ? window.location.host : '' :''}/api`
   },
   watch: {
     search_query(q) {
