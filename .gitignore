@@ -77,6 +77,3 @@ media/
 # Venv
 venv
 
-# Configs
-**/.env
-.env
