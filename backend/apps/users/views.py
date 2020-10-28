@@ -245,9 +245,9 @@ class UserViewSet(viewsets.ModelViewSet):
         try:
             if user.avatar:
                 os.remove(user.avatar.path)
-            ## user.delete()
-            user.is_active = False
-            user.save()
+            user.delete()
+            ##user.is_active = False
+            ##user.save()
             return True
         except:
             return False
