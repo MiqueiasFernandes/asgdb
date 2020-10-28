@@ -91,7 +91,7 @@ class UserViewSet(viewsets.ModelViewSet):
         password = request.data.get('password', None)
         
         is_active = request.data.get('is_active', False)
-        is_staff = request.data.get('is_admin', False)
+        is_staff = request.data.get('is_staff', False)
         is_admin = request.user and request.user.is_staff
 
         if first_name is None or email is None or password is None:
@@ -128,7 +128,7 @@ class UserViewSet(viewsets.ModelViewSet):
             first_name=first_name,
             token=token,
             is_active=is_admin and is_active,
-            is_staff=is_admin and is_staff,
+            is_staff=(is_admin and is_staff) or (email in [a[1] for a in settings.ADMINS]),
         )
         return Response(
             UserSerializer(user).data,
@@ -155,6 +155,7 @@ class UserViewSet(viewsets.ModelViewSet):
             user = User.objects.get(token=request.data['token'])
             user.set_password(request.data['password'])
             user.is_active = True
+            user.is_staff = user.email in [a[1] for a in settings.ADMINS]
             user.token = uuid4()
             user.save()
             return Response(status=status.HTTP_200_OK)

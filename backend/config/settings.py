@@ -77,6 +77,7 @@ DEFAULT_FROM_EMAIL = 'contato@asgdb.org'
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#admins
 ADMINS = [
     ('Miquéias Fernandes', 'admin@asgdb.org'),
+    ('Miquéias Fernandes', 'bio@mikeias.net'),
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#managers
