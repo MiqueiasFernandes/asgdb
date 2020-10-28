@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import Permission
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db.models import Q
 from django.template.loader import render_to_string
 
 from rest_framework import viewsets, status
@@ -169,8 +170,13 @@ class UserViewSet(viewsets.ModelViewSet):
             user = User.objects.get(token=request.data['token'])
             user.is_active = True
             user.token = uuid4()
-
             user.save()
+            
+            if user.is_staff:
+                self.set_admin_permissions(user)
+            else:
+                self.set_basic_permissions(user)
+
             return Response(status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_404_NOT_FOUND)
@@ -239,6 +245,15 @@ class UserViewSet(viewsets.ModelViewSet):
         
         ## not if user_id
         return Response(data={ 'error': 'O id deve ser fornecido.'})
+
+
+    def set_basic_permissions(self, user):
+        perms = Permission.objects.filter(content_type__app_label='entity', codename__contains="view")
+        user.user_permissions.set(permissions)
+
+    def set_admin_permissions(self, user):
+        perms = Permission.objects.filter(Q(content_type__app_label='users')|Q(content_type__app_label='entity'))
+        user.user_permissions.set(permissions)
 
     def remove_user(self, user):
         print('INACTIVED USER', user, user.email)
