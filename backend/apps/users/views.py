@@ -170,7 +170,6 @@ class UserViewSet(viewsets.ModelViewSet):
             user = User.objects.get(token=request.data['token'])
             user.is_active = True
             user.token = uuid4()
-            user.save()
 
             if user.is_staff:
                 perms = Permission.objects.filter(
@@ -180,7 +179,8 @@ class UserViewSet(viewsets.ModelViewSet):
                 perms = Permission.objects.filter(content_type__app_label='entity', codename__contains="view")
             
             user.user_permissions.set(perms)
-
+            user.save()
+            
             return Response(status=status.HTTP_200_OK)
 
         return Response(status=status.HTTP_404_NOT_FOUND)
