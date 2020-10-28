@@ -17,3 +17,17 @@ Install [Docker](https://docs.docker.com/install/) and [Docker-Compose](https://
 If all works well, you should be able to create an admin account with:
 
 `docker-compose run backend python manage.py createsuperuser`
+
+To access conteiners, ex of backend:
+
+`sudo docker exec -ti asgdb_backend_1 bash`
+
+## Production
+
+To build a production app run:
+
+`sudo docker-compose -f docker-compose-prod.yml build`
+
+Then run:
+
+`sudo docker-compose -f docker-compose-prod.yml up`
