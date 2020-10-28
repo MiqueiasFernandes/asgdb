@@ -171,11 +171,15 @@ class UserViewSet(viewsets.ModelViewSet):
             user.is_active = True
             user.token = uuid4()
             user.save()
-            
+
             if user.is_staff:
-                self.set_admin_permissions(user)
+                perms = Permission.objects.filter(
+                    Q(content_type__app_label='users')|Q(content_type__app_label='entity')
+                    )
             else:
-                self.set_basic_permissions(user)
+                perms = Permission.objects.filter(content_type__app_label='entity', codename__contains="view")
+            
+            user.user_permissions.set(perms)
 
             return Response(status=status.HTTP_200_OK)
 
@@ -246,14 +250,6 @@ class UserViewSet(viewsets.ModelViewSet):
         ## not if user_id
         return Response(data={ 'error': 'O id deve ser fornecido.'})
 
-
-    def set_basic_permissions(self, user):
-        perms = Permission.objects.filter(content_type__app_label='entity', codename__contains="view")
-        user.user_permissions.set(permissions)
-
-    def set_admin_permissions(self, user):
-        perms = Permission.objects.filter(Q(content_type__app_label='users')|Q(content_type__app_label='entity'))
-        user.user_permissions.set(permissions)
 
     def remove_user(self, user):
         print('INACTIVED USER', user, user.email)
