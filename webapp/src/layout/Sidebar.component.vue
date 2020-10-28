@@ -130,8 +130,22 @@ export default {
     colapse_admin() {
       let collapse = this.as_collapse("Administration");
       collapse.buttons.push(this.as_button("Users", "people", this.act_users));
-      collapse.buttons.push(this.as_button("Admin", "tools", () => window.location.href = `/admin`, 'info'));
-      collapse.buttons.push(this.as_button("API", "plug", () => window.location.href = `/api`, 'secondary'));
+      collapse.buttons.push(
+        this.as_button(
+          "Admin",
+          "tools",
+          () => (window.location.href = `/admin`),
+          "info"
+        )
+      );
+      collapse.buttons.push(
+        this.as_button(
+          "API",
+          "plug",
+          () => (window.location.href = `/api`),
+          "secondary"
+        )
+      );
       return collapse;
     },
 
@@ -161,14 +175,16 @@ export default {
         c.instance.hide();
         c.open = false;
       });
-      collapse.open =
-        "true" ===
-        this.$refs[collapse.id + "-btn"].getAttribute("aria-expanded");
-      if (!collapse.open) {
-        setTimeout(() => {
-          this.collapses[0].instance.show();
-          this.collapses[0].open = true;
-        }, 800);
+      if (colapse && colapse.id) {
+        collapse.open =
+          "true" ===
+          this.$refs[collapse.id + "-btn"].getAttribute("aria-expanded");
+        if (!collapse.open) {
+          setTimeout(() => {
+            this.collapses[0].instance.show();
+            this.collapses[0].open = true;
+          }, 800);
+        }
       }
     },
 
