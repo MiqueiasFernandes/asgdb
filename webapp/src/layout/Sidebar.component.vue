@@ -175,7 +175,7 @@ export default {
         c.instance.hide();
         c.open = false;
       });
-      if (colapse && colapse.id) {
+      if (collapse && collapse.id) {
         collapse.open =
           "true" ===
           this.$refs[collapse.id + "-btn"].getAttribute("aria-expanded");
