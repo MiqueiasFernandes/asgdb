@@ -81,6 +81,6 @@ class Feature(models.Model):
     feature = models.CharField(max_length=1, choices=FEATURE_TYPE)
     sequence = models.TextField(blank=True, null=True)
 
-    gene = models.OneToOneField(Gene, on_delete=models.CASCADE)
+    gene = models.ForeignKey(Gene, on_delete=models.CASCADE, null=False)
     isoform = models.ForeignKey(Isoform, on_delete=models.CASCADE, null=True)
 
