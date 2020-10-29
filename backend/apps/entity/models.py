@@ -54,7 +54,7 @@ class Condition(models.Model):
 class Expression(models.Model):
     count = models.DecimalField(max_digits=19, decimal_places=10)
     RPKM = models.DecimalField(max_digits=19, decimal_places=10)
-    note = models.CharField(max_length=50, unique=True)
+    note = models.CharField(max_length=50)
 
     condition = models.ForeignKey(Condition, on_delete=models.CASCADE)
 
