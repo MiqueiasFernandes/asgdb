@@ -44,7 +44,8 @@ class AnnotationViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False)
     def list_all(self, request):
-        return Response(data={'items': [AnnotationBasicSerializer(i).data for i in self.queryset]})
+        items = Annotation.objects.all()
+        return Response(data={'items': [AnnotationBasicSerializer(i).data for i in items]})
 
 class GeneViewSet(viewsets.ModelViewSet):
     """
