@@ -26,7 +26,8 @@ class OrganismViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False)
     def list_all(self, request):
-        return Response(data={'items': [OrganismBasicSerializer(i).data for i in self.queryset]})
+        items = Organism.objects.all()
+        return Response(data={'items': [OrganismBasicSerializer(i).data for i in items]})
 
 
 class AnnotationViewSet(viewsets.ModelViewSet):
@@ -65,7 +66,8 @@ class GeneViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False)
     def list_all(self, request):
-        return Response(data={'items': [GeneBasicSerializer(i).data for i in self.queryset]})
+        items = Gene.objects.all()
+        return Response(data={'items': [GeneBasicSerializer(i).data for i in items]})
 
 
 class ProteinViewSet(viewsets.ModelViewSet):
@@ -83,7 +85,8 @@ class ProteinViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False)
     def list_all(self, request):
-        return Response(data={'items': [ProteinBasicSerializer(i).data for i in self.queryset]})
+        items = Protein.objects.all()
+        return Response(data={'items': [ProteinBasicSerializer(i).data for i in items]})
 
     def get_serializer_class(self):
         return ProteinWriteSerializer if isWriter(self) else ProteinSerializer
@@ -123,7 +126,8 @@ class ConditionViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False)
     def list_all(self, request):
-        return Response(data={'items': [ConditionBasicSerializer(i).data for i in self.queryset]}) 
+        items = Condition.objects.all()
+        return Response(data={'items': [ConditionBasicSerializer(i).data for i in items]}) 
 
 
 
@@ -145,7 +149,8 @@ class ExpressionViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False)
     def list_all(self, request):
-        return Response(data={'items': [ExpressionBasicSerializer(i).data for i in self.queryset]}) 
+        items = Expression.objects.all()
+        return Response(data={'items': [ExpressionBasicSerializer(i).data for i in items]}) 
 
 
 class IsoformViewSet(viewsets.ModelViewSet):
@@ -166,7 +171,8 @@ class IsoformViewSet(viewsets.ModelViewSet):
 
     @action(methods=['GET'], detail=False)
     def list_all(self, request):
-        return Response(data={'items': [IsoformBasicSerializer(i).data for i in self.queryset]})
+        items = Isoform.objects.all()
+        return Response(data={'items': [IsoformBasicSerializer(i).data for i in items]})
 
 
 class FeatureViewSet(viewsets.ModelViewSet):
