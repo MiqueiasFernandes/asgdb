@@ -104,7 +104,7 @@
             >
               <option
                 v-if="!relation.required"
-                @click="instance[relation.write] = []"
+                @click="instance[relation.write] = relation.empty"
               >
                 ---
               </option>
