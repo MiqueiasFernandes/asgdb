@@ -33,6 +33,7 @@ class Model {
     }
 
     fabric(base, write) {
+        console.log('fabric')
         const newObj = this
             .fields
             .reduce((o, key) => ({ ...o, [key.id]: base ? base[key.id] : key.default }), {})
@@ -41,7 +42,7 @@ class Model {
                 if (r.multiple) {
                     newObj[r.write] = base ? base[r.read].map(i => i.id) : []
                 } else {
-                    newObj[r.write] = base ? base[r.read].id : undefined
+                    newObj[r.write] = base && base[r.read] ? base[r.read].id : null
                 }
             })
         } else {
@@ -78,8 +79,8 @@ class Field {
         this.center = false;
         this.default = undefined;
         this.base_label = false;
-        this.required = true
-        this.empty = null
+        this.required = true;
+        this.empty = null;
     }
 
     value(val) {
@@ -167,8 +168,8 @@ class ForeignKey {
         this.human = to.human_name || human
         this.sort = sort || `${this.name}__${this.label}`
         this.center = true
-        this.required = true
-        this.empty = null
+        this.required = true;
+        this.empty = null;
     }
 
     noSort() {
